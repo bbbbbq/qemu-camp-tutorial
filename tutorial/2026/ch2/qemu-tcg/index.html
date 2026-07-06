@@ -1,0 +1,8142 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="GTOC">
+      
+      
+        <link rel="canonical" href="https://github.com/gevico/tutorial/2026/ch2/qemu-tcg/">
+      
+      
+        <link rel="prev" href="../qemu-cpu-model/">
+      
+      
+        <link rel="next" href="../qemu-insn/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../image/Qemu-logo.png">
+      <meta name="generator" content="zensical-0.0.47">
+    
+    
+      
+        <title>QEMU TCG 介绍：二进制动态翻译原理和运行流程 - QEMU Camp Tutorial</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../../../assets/stylesheets/modern/main.5e19f6ca.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../plugins/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../../plugins/stylesheets/ppt-slides.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="导航栏"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#qemu-tcg" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="QEMU Camp Tutorial" class="md-header__button md-logo" aria-label="QEMU Camp Tutorial" data-md-component="logo">
+      
+  <img src="../../../../image/Qemu-logo.png" alt="QEMU Camp Tutorial">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="导航栏">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            QEMU Camp Tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              QEMU TCG 介绍：二进制动态翻译原理和运行流程
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to happy mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to happy mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="查找">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="查找">
+  <button type="button" class="md-search__button">
+    查找
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/gevico/qemu-camp-tutorial" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    gevico/qemu-camp-tutorial
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  主页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../signup/" class="md-tabs__link">
+        
+  
+  报名
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../" class="md-tabs__link">
+          
+  
+  讲义
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../exercise/" class="md-tabs__link">
+          
+  
+  实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../leaderboards/2026/basic/c/" class="md-tabs__link">
+          
+  
+  排行榜
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../blogs/" class="md-tabs__link">
+          
+  
+  博客
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../news/2026/qemu-camp-project-stage-2026-07-03/" class="md-tabs__link">
+          
+  
+  新闻
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="QEMU Camp Tutorial" class="md-nav__button md-logo" aria-label="QEMU Camp Tutorial" data-md-component="logo">
+      
+  <img src="../../../../image/Qemu-logo.png" alt="QEMU Camp Tutorial">
+
+    </a>
+    QEMU Camp Tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/gevico/qemu-camp-tutorial" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    gevico/qemu-camp-tutorial
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  主页
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../signup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  讲义
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  讲义
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2026
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../ch0/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  1. 导学阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  1. 导学阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch0/qemu-dev-env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. QEMU 开发环境搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch0/gpu-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. GPU 发展历史
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch0/gpgpu-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. GPGPU 学习资料
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch0/qemu-camp-faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 训练营常见问答
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../ch1/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2. 基础阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  2. 基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch1/vm-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. 虚拟技术历史
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch1/qemu-startup-param/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. 启动参数分析
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch1/qemu-init/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. 启动流程分析
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch1/qemu-qom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 面向对象建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch1/qemu-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. 地址空间抽象
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch1/qemu-debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  f. 常用调试方法
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  3. 专业阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_4" id="__nav_3_1_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  3. 专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-cpu-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. CPU 建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. TCG 工作原理
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. TCG 工作原理
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#qemu-tcg_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        QEMU 的执行框架与 TCG
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="QEMU 的执行框架与 TCG">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qemu" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        QEMU 的两种主要运行模式
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qemu_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        执行后端：QEMU 如何真正“执行”客户机代码
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tcg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        什么时候会走 TCG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        动态二进制翻译基础：从解释执行到 JIT 翻译
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="动态二进制翻译基础：从解释执行到 JIT 翻译">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        解释执行
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        静态二进制翻译：先全部翻好，再运行
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        动态二进制翻译：运行到哪里，就翻译到哪里
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jit-just-in-time-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        JIT (Just In Time Compilation)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tcg-ir" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG IR 介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tcg_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG 后端翻译流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        拓展阅读
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="拓展阅读">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tcg_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        多线程 TCG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        直接跳转优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码缓存管理
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tcg_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG 插件
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tcg_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG 性能分析
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-insn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. 模拟客户机指令
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-softmmu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 模拟硬件 MMU
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-intr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. 模拟中断和异常
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-multi-core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  f. 模拟多核场景
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  g. 主板建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-hw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  h. 外设建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-clock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  i. 时钟系统介绍
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  j. GPGPU 原理
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-pcie/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  k. PCIe 模拟方法
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-gpgpu-kernel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  l. kernel 运行机制
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-rust-ffi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  m. Rust FFI 介绍
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-rust-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  n. Rust 建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu-rust-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  o. Rust 测题开发
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../ch3/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  4. 项目阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_5" id="__nav_3_1_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  4. 项目阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch3/qemu-k230/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. 数字星务计算机
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch3/qemu-cxlemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. 建模 AI 加速卡
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch3/qemu-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. 大模型建模外设
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch3/qemu-wine-ce/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 应用跨平台转译
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ch3/qemu-ai-dev-guidance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. AI 开发提示
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../2025/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2025
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2025
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  1. 导学阶段
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../2025/ch1/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2. 基础阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_3" id="__nav_3_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  2. 基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch1/sec1/vm-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. 虚拟技术发展历史
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch1/sec2/hypervisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. Hypervisor 技术介绍
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_3_4" id="__nav_3_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. QEMU 基本知识介绍
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  c. QEMU 基本知识介绍
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch1/sec3/qemu-qom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  面向对象建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch1/sec3/qemu-memory-region/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  地址空间抽象
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../2025/ch2/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  3. 专业阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_4" id="__nav_3_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  3. 专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec1/qemu-init/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. QEMU 初始化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_3" id="__nav_3_2_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. QEMU 加速器
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  b. QEMU 加速器
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_3_1" id="__nav_3_2_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tiny Code Generator
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Tiny Code Generator
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec2/qemu-accel-tcg/tcg-translation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  TCG Translation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec2/qemu-accel-tcg/tcg-add-guest-insn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Decodetree
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec2/qemu-accel-tcg/tcg-ir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  TCG IR
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec2/qemu-accel-kvm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Hypervisor
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_4" id="__nav_3_2_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. QEMU Arch 模拟
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  c. QEMU Arch 模拟
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec3/qemu-tcg-riscv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  RISC-V 模拟
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_5" id="__nav_3_2_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. QEMU 硬件建模
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  d. QEMU 硬件建模
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_5_1" id="__nav_3_2_4_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  C 语言建模
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  C 语言建模
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec4/c-model/machine-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Machine 建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec4/c-model/peripheral-model-uart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  外设建模（串口）
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec4/c-model/peripheral-model-edu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  外设建模（edu）
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec4/c-model/intr-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  中断建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_5_2" id="__nav_3_2_4_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 建模
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_4_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Rust 建模
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec4/rust-model/rust-in-qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust in QEMU
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec4/rust-model/peripheral-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  外设建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_6" id="__nav_3_2_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. QEMU 调试
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  e. QEMU 调试
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec5/debug-qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  源码调试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec5/gdbstub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  远程调试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec5/qemu-log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  日志调试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec5/trace-event/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  追踪事件
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_7" id="__nav_3_2_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  f. QEMU 测试
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  f. QEMU 测试
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec6/qtest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Qtest
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec6/test-tcg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  TCG 测试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_8" id="__nav_3_2_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  g. QEMU 虚拟化实践
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  g. QEMU 虚拟化实践
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec7/qemu-virtual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  创建和管理虚拟机
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch2/sec7/emulate-rvh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  模拟 RISCV 虚拟化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../2025/ch3/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  4. 项目阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_5" id="__nav_3_2_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  4. 项目阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch3/sec1/k230-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. QEMU 建模 K230
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch3/sec2/os-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. QEMU 测评 OS
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_6" id="__nav_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  5. 课程附录
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  5. 课程附录
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch4/prof-level-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. Prof Level Manual
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch4/g233-board-datasheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. G233 Datasheet
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../2025/ch5/contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  6. 贡献名录
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/2026/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2026
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/2026/stage0/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  基础阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage0/learning-c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  C 实验
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage0/learning-rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 实验
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/2026/stage1/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/2026/stage1/cpu/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_2" id="__nav_4_2_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  CPU 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/cpu/cpu-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/cpu/cpu-datasheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 硬件手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/2026/stage1/soc/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_3" id="__nav_4_2_3_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  SoC 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/soc/g233-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/soc/g233-datasheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 硬件手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/2026/stage1/gpu/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  GPU 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/gpu/gpu-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/gpu/gpu-datasheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 硬件手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../exercise/2026/stage1/rust/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_5" id="__nav_4_2_3_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Rust 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/rust/rust-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../exercise/2026/stage1/rust/rust-lang-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 编程指南
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  排行榜
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  排行榜
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2026
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_1" id="__nav_5_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  基础阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../leaderboards/2026/basic/c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  C 语言
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../leaderboards/2026/basic/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_2" id="__nav_5_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../leaderboards/2026/professional/cpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../leaderboards/2026/professional/soc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../leaderboards/2026/professional/gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../leaderboards/2026/professional/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../blogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  博客
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  博客
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  训练营 2026
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_1" id="__nav_6_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-dingtao1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  dingtao1
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_1_2" id="__nav_6_2_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  random25160765-collab
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_2_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  random25160765-collab
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-random25160765-collab/gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-random25160765-collab/gpgpu-advanced-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 进阶实验一
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-ihanzh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ihanzh
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-srcres258/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  srcres258
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-Codeman-1999/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Codeman-1999
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-kusola/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  kusola
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-flespark-tcg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  flespark
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_1_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_1_8" id="__nav_6_2_1_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  caspian
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_2_1_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_1_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  caspian
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-caspian/cpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-caspian/soc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-caspian/gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-caspian/gpgpu-advanced-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 进阶实验一
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-caspian/gpgpu-advanced-2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 进阶实验二
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-cn-sys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cn-sys
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-Kcang-gna/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kcang-gna
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-lingqian-gi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  lingqian-gi
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-yuanyiboyyb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  yuanyiboyyb
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-scrail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  scrail
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-Firegooder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Firegooder
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-liuhong-gpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  liuhong
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-vsvnakers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  vsvnakers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-asdfgh870/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  asdfgh870
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-Eclipse-Arrebol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Eclipse-Arrebol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-2zuqisong/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2zuqisong
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-Aozaki-aok0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Aozaki-aok0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-rhbfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  rhbfc
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-serf-huik/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  serf-huik
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-jensenojs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  jensenojs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-dazuo233/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  dazuo233
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-jack-wang-176/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  jack-wang-176
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-eyauwag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  eyauwag
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-Sunuywq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sunuywq
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-zhenbaii/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  zhenbaii
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-First-da/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  First-da
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-WhiteBearI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  WhiteBearI
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-yyxt-xwy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  yyxt-xwy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-xiex386/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  xiex386
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-flamboyante/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  flamboyante
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-dweeqhd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  dweeqhd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-jieniguiemmm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  jieniguiemmm
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/professional/qemu-camp-2026-sutter099/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  sutter099
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2" id="__nav_6_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  项目阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  项目阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2026/project/project-stage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  暂无文章
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  训练营 2025
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  训练营 2025
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/2025/qemu-camp-2025-LordaeronESZ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段总结 LordaeronESZ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  其他技术博客
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  其他技术博客
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/misc/from-a-cmodel-rd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  从 cmodel 说开来 - rd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/misc/qemu-devel-email/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  参与 QEMU 邮件列表讨论
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/misc/qemu-cnb-dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  一键 QEMU 云原生开发
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../blogs/misc/simulater-interp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  虚拟机软件中的解释技术
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  新闻
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  新闻
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_1" id="__nav_7_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2026 年
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  2026 年
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../news/2026/qemu-camp-project-stage-2026-07-03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  07 月 03 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../news/2026/qemu-camp-meetup-2026-04-05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  04 月 05 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../news/2026/qemu-camp-update-2026-03-17/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  03 月 17 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../news/2026/qemu-camp-meetup-2026-02-28/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  02 月 28 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../news/2026/qemu-camp-update-2026-01-31/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 月 31 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../news/2026/qemu-camp-meetup-2026-01-30/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 月 30 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../news/2026/qemu-camp-update-2026-01-07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 月 07 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#qemu-tcg_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        QEMU 的执行框架与 TCG
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="QEMU 的执行框架与 TCG">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qemu" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        QEMU 的两种主要运行模式
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#qemu_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        执行后端：QEMU 如何真正“执行”客户机代码
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tcg" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        什么时候会走 TCG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        动态二进制翻译基础：从解释执行到 JIT 翻译
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="动态二进制翻译基础：从解释执行到 JIT 翻译">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        解释执行
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        静态二进制翻译：先全部翻好，再运行
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        动态二进制翻译：运行到哪里，就翻译到哪里
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#jit-just-in-time-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        JIT (Just In Time Compilation)
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tcg-ir" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG IR 介绍
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tcg_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG 后端翻译流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        拓展阅读
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="拓展阅读">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tcg_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        多线程 TCG
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        直接跳转优化
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        代码缓存管理
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tcg_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG 插件
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tcg_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        TCG 性能分析
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="qemu-tcg">QEMU TCG 介绍：二进制动态翻译原理和运行流程<a class="headerlink" href="#qemu-tcg" title="Permanent link">&para;</a></h1>
+<div class="admonition note">
+<p class="admonition-title">主要贡献者</p>
+<ul>
+<li>作者：<a href="https://github.com/zevorn">@zevorn</a> <a href="https://github.com/Plucky923">@Plucky923</a></li>
+</ul>
+</div>
+<div class="admonition info">
+<p class="admonition-title">QEMU 版本</p>
+<p>本文基于 QEMU <strong>v10.2.0</strong>（tag: <a href="https://gitlab.com/qemu-project/qemu/-/tags/v10.2.0"><code>v10.2.0</code></a>，commit: <code>75eb8d57c6b9</code>）。</p>
+</div>
+<p>QEMU 支持多种 accel（accelerator，加速器，决定 vCPU 的执行方式），但大体可以分为两种：指令模拟技术（TCG）、虚拟化技术（KVM、HVF）等。QEMU 有两种主要的运行模式：System mode 模拟整个机器（CPU、内存和虚拟设备）以运行客户机操作系统；User mode 则允许在一个 CPU 架构上运行为另一个 CPU 编译的用户态进程，此时 CPU 始终被模拟，主要支持 Linux 用户态程序。</p>
+<div class="admonition tip">
+<p class="admonition-title">概览</p>
+<ul>
+<li>TCG 作为动态二进制翻译引擎的角色</li>
+<li>IR 结构与 TB/BB 的基本概念</li>
+<li>翻译流程与执行路径</li>
+<li>MTTCG 多线程模型</li>
+<li>跳转优化、代码缓存与性能分析</li>
+</ul>
+</div>
+<hr />
+<h2 id="qemu-tcg_1">QEMU 的执行框架与 TCG<a class="headerlink" href="#qemu-tcg_1" title="Permanent link">&para;</a></h2>
+<p>要理解 <a href="https://www.qemu.org/docs/master/devel/index-tcg.html">TCG</a>（<em>Tiny Code Generator</em>），不能一开始就钻进翻译细节，而应先看清它在 <a href="https://www.qemu.org/docs/master/about/index.html">QEMU</a> 整体执行框架中的位置。QEMU 本质上不是单一的“虚拟机程序”，而是一个通用的执行框架：它既可以模拟完整机器，也可以只模拟用户态进程；既可以通过纯软件方式执行客户机代码，也可以在条件满足时借助硬件辅助虚拟化来加速执行。官方文档将其主要使用方式区分为 <strong>System Emulation</strong> 与 <strong>User Mode Emulation</strong> 两类；其中，当使用 TCG 时，QEMU 负责将客户机代码动态翻译为宿主机可执行代码。 ([QEMU][1])</p>
+<h3 id="qemu">QEMU 的两种主要运行模式<a class="headerlink" href="#qemu" title="Permanent link">&para;</a></h3>
+<p>QEMU 的第一种主要运行模式是 <a href="https://www.qemu.org/docs/master/system/index.html"><strong>System Emulation</strong></a>。在这种模式下，QEMU 要模拟的是“一整台机器”，而不是单个进程。它需要向客户机提供完整的硬件抽象，包括 <a href="https://en.wikipedia.org/wiki/Central_processing_unit">CPU</a>、内存、时钟、中断控制器以及各种虚拟设备。对客户机而言，它面对的是一台完整计算机，因此可以执行引导代码、启动操作系统内核，并继续运行整个操作系统栈。官方文档也明确将这一模式描述为“full system emulation”。</p>
+<p>第二种主要运行模式是 <a href="https://qemu-project.gitlab.io/qemu/user/index.html"><strong>User Mode Emulation</strong></a>。在这种模式下，QEMU 不再模拟整台机器，而是只模拟跨架构用户态程序执行所必需的那部分环境。更具体地说，它允许宿主机在保持自身操作系统不变的前提下，运行另一种 CPU 架构编译出来的用户态程序。此时，QEMU 仍然需要模拟客户机 CPU 的指令语义，但它通常不再负责完整设备模型与整机级硬件状态推进；官方文档也明确指出，在 User mode 中，CPU“始终是被模拟的”。</p>
+<p>这两种模式的差别非常关键，因为它直接决定了 QEMU 需要承担的责任边界。在 System mode 中，QEMU 不仅要关心“这条指令做了什么”，还要关心访存、中断、设备交互、机器状态推进等整机级问题；而在 User mode 中，QEMU 的关注点更集中在用户态指令流与进程级 <a href="https://en.wikipedia.org/wiki/Application_binary_interface">ABI</a> 兼容上。后文很多机制——例如地址转换、异常处理、代码失效、访存路径——在两种模式下都会出现，但其复杂度和设计动机并不相同。</p>
+<h3 id="qemu_1">执行后端：QEMU 如何真正“执行”客户机代码<a class="headerlink" href="#qemu_1" title="Permanent link">&para;</a></h3>
+<p>在 System mode 和 User mode 之上，QEMU 还支持多种不同的 <strong>执行后端</strong>，也就是“客户机代码最终如何在宿主机上被执行”。从总体上看，这些后端可以分成两类。第一类是 <strong>软件执行路径</strong>，即由 QEMU 自己理解并执行客户机指令；第二类是 <strong>硬件辅助执行路径</strong>，即在宿主机硬件允许的情况下，让客户机指令尽可能直接运行在物理 CPU 上。QEMU 官方文档和相关生态文档都将 <a href="https://www.qemu.org/docs/master/devel/index-tcg.html">TCG</a>、<a href="https://www.kernel.org/doc/html/latest/virt/kvm/index.html">KVM</a>、<a href="https://libvirt.org/drvqemu.html">HVF</a> 等归入不同的 accelerator 或 execution backend 选择。 </p>
+<p>其中，最重要的软件执行后端就是 <strong>TCG</strong>。按照 QEMU 开发文档的定义，QEMU 的动态翻译后端称为 TCG；它会在首次遇到一段客户机代码时，将其转换为宿主机指令集上的可执行代码，并在之后重复利用翻译结果。也就是说，TCG 的职责不是“逐条解释执行每条指令”，而是充当一个 <a href="https://en.wikipedia.org/wiki/Binary_translation#Dynamic_binary_translation">动态二进制翻译</a> 引擎。</p>
+<p>与之对应，硬件辅助执行路径的典型代表是 Linux 上的 <a href="https://www.kernel.org/doc/html/latest/virt/kvm/index.html">KVM</a> 和 macOS 上的 <a href="https://libvirt.org/drvqemu.html">HVF</a>。这类后端的共同特点是：当客户机架构与宿主机架构兼容，且宿主机提供相应硬件支持时，QEMU 不需要亲自翻译大部分普通客户机指令，而可以让这些指令尽可能直接运行在物理 CPU 上。此时，QEMU 更像是一个上层虚拟机管理框架和设备模型提供者，而不是纯粹的软件 CPU 模拟器。 </p>
+<p>因此，一个经常需要澄清的概念是：<strong>QEMU 不等于 TCG</strong>。QEMU 是整体框架；TCG 只是 QEMU 的一个执行后端，而且是负责“纯软件动态翻译”的那个后端。当读者后面看到 IR、TB、code buffer、direct block chaining 等机制时，应始终记住：这些首先是 <strong>TCG 子系统</strong> 的机制，而不是 QEMU 所有执行路径都必须经过的机制。</p>
+<h3 id="tcg">什么时候会走 TCG<a class="headerlink" href="#tcg" title="Permanent link">&para;</a></h3>
+<p>最典型的一类场景，是 <strong>跨架构执行</strong>。例如，在 x86-64 宿主机上运行 <a href="https://www.qemu.org/docs/master/system/target-riscv.html">RISC-V</a> 或 <a href="https://www.qemu.org/docs/master/system/target-arm.html">Arm</a> 的客户机代码时，宿主机 CPU 无法直接理解这些指令，因此必须由 QEMU 将客户机指令转换成宿主机可以执行的形式。QEMU 官方文档将这种能力明确归于 TCG：它在任意受支持宿主平台上模拟多种客户机 CPU 架构，并同时支持 system emulation 与 user-mode emulation。</p>
+<p>另一类场景是：<strong>即使客户机与宿主机架构兼容，也没有使用硬件虚拟化后端</strong>。例如，宿主机不支持 KVM/HVF，或者运行时显式选择 <code>-accel tcg</code>，那么客户机代码仍然会通过 TCG 执行。QEMU 文档与相关手册都说明了 <code>tcg</code> 是可选 accelerator 之一，并且在不使用硬件虚拟化时负责软件执行路径。 ([QEMU][5])</p>
+<p>相反，当客户机架构与宿主机架构兼容，且 KVM、HVF 等硬件辅助后端可用时，QEMU 通常会优先利用这些后端来运行客户机 CPU 代码。这意味着：在这些场景下，QEMU 仍然参与整个虚拟机的管理与设备模拟，但客户机的大部分普通指令并不经过 TCG。换言之，<strong>TCG 主要服务于“客户机代码不能直接在硬件上运行”或“运行时选择了软件翻译路径”这两类情形</strong>。</p>
+<h2 id="jit">动态二进制翻译基础：从解释执行到 JIT 翻译<a class="headerlink" href="#jit" title="Permanent link">&para;</a></h2>
+<p>当前面说 QEMU 可以用 <a href="https://www.qemu.org/docs/master/devel/index-tcg.html">TCG</a> 来执行客户机代码时，一个最自然的问题是：<strong>为什么还需要“翻译”？为什么不能直接运行？</strong></p>
+<p>原因很简单。客户机程序里的指令，是为 <strong>Guest CPU 架构</strong> 编写的；而真正执行代码的是宿主机的 <strong>Host CPU</strong>。如果两者架构不同，宿主机就根本看不懂这些指令。比如一台 x86-64 机器，不能直接执行 RISC-V 程序中的机器码。要让程序跑起来，系统就必须先“理解”这些指令的含义，再想办法在宿主机上把同样的效果做出来。</p>
+<p>解决这个问题，通常有三种思路：<strong>解释执行</strong>、<strong>静态二进制翻译</strong> 和 <strong>动态二进制翻译</strong>。</p>
+<h3 id="_1">解释执行<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>最容易理解的方法是 <strong>解释执行</strong>。先取出一条 Guest 指令，分析它的含义，再在宿主机上执行对应的操作。做完这一条，再处理下一条。</p>
+<p>如果只看思路，它大概就是这样：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>取一条 Guest 指令
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>→ 解析它的含义
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>→ 修改寄存器和内存状态
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>→ 继续下一条
+</code></pre></div>
+<p>这种方法的优点是直接、清楚，也容易实现。因为每一步都回到解释器主循环，所以调试和控制都比较方便。</p>
+<p>但它有一个明显缺点：<strong>太慢</strong>。</p>
+<p>因为每执行一条 Guest 指令，宿主机都要重复做一遍“取指、解码、分派、执行”这套工作。也就是说，很多时间不是花在“完成这条指令的语义”上，而是花在“理解这条指令要做什么”上。这个额外开销会在每条指令上重复出现，所以性能通常不高。</p>
+<p>因此，解释执行适合做原型、教学，或者用在性能要求不高的场景；但如果想让一个通用模拟器跑得更快，通常还需要别的办法。</p>
+<h3 id="_2">静态二进制翻译：先全部翻好，再运行<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<p>第二种方法是 <strong>静态二进制翻译</strong>。</p>
+<p>它的思路是：既然解释执行反复分析同一段代码太浪费，那不如在程序运行之前，先把 Guest 代码整体翻译成 Host 代码，之后直接运行翻译后的结果。</p>
+<p>也就是：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Guest 程序
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>→ 先翻译成 Host 程序
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>→ 再执行
+</code></pre></div>
+<p>这样做的好处很明显。翻译工作只做一次，运行时就不用反复解释了。</p>
+<p>但它也有局限。因为很多程序的执行路径并不是在运行前就完全确定的。程序里可能有间接跳转、动态链接、运行时生成代码，甚至会修改自己的代码。这些情况都会让“先把整个程序一次性翻译完”变得困难。</p>
+<p>所以，静态翻译适合一些比较封闭、行为比较稳定的场景，但对于像 QEMU 这样要处理通用系统软件、不同架构和复杂运行时行为的系统来说，它并不是最自然的方案。</p>
+<h3 id="_3">动态二进制翻译：运行到哪里，就翻译到哪里<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>这就引出了第三种方法：<strong>动态二进制翻译</strong>。</p>
+<p>它的核心思想是：</p>
+<blockquote>
+<p>程序运行到哪里，就翻译到哪里；翻译过的结果保存起来，下次再执行到同一段代码时，尽量直接复用。</p>
+</blockquote>
+<p>这比前两种方法都更灵活。</p>
+<p>它不像解释执行那样，每次都重新分析同一条指令；
+也不像静态翻译那样，要求一开始就知道整个程序的完整形态。</p>
+<p>它的基本流程可以概括为：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>执行到某段 Guest 代码
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>→ 看这段代码以前有没有翻译过
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>→ 如果翻译过，就直接执行缓存结果
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>→ 如果没有，就现场翻译，再执行
+</code></pre></div>
+<p>这样做的关键好处在于：程序真正会反复运行的，通常只有少数“热点路径”。动态翻译不需要提前处理所有代码，只需要把真正执行到的那部分翻译出来，再把热点路径重复利用起来。这样，翻译成本就可以被后续多次执行摊薄。</p>
+<p>因此，动态二进制翻译本质上是在做一个折中：</p>
+<ul>
+<li>它比解释执行复杂，</li>
+<li>但通常比解释执行快得多；</li>
+<li>它没有静态翻译那么“提前”，</li>
+<li>但对真实运行时的适应性更强。</li>
+</ul>
+<h3 id="jit-just-in-time-compilation">JIT (Just In Time Compilation)<a class="headerlink" href="#jit-just-in-time-compilation" title="Permanent link">&para;</a></h3>
+<p>讲到动态翻译时，经常会看到一个词：<a href="https://en.wikipedia.org/wiki/Just-in-time_compilation">JIT</a>。</p>
+<p>这里的 JIT，直观上可以理解为：<strong>在程序运行过程中，临时把一段代码编译成当前宿主机可以直接执行的机器码。</strong></p>
+<p>如果系统只是“在运行时分析 Guest 指令”，但最后并没有把结果真正变成 Host 机器码，而只是换一种形式继续解释执行，那么性能提升通常有限。只有当翻译结果真的落成宿主机机器码，宿主机 CPU 才能直接执行这段结果，解释器主循环的负担才会明显减轻。</p>
+<p>QEMU 需要支持很多不同的 Guest 架构，也要运行在很多不同的 Host 架构上。如果完全用解释执行，虽然实现直接，但性能通常太低；如果采用静态翻译，又很难适应通用系统模拟中的复杂运行时行为。因此，QEMU 选择了一条更实用的路线：<strong>动态二进制翻译</strong>。</p>
+<p>也就是说，QEMU 不会预先翻译整个客户机程序，而是在运行过程中按需翻译代码，并把翻译结果缓存起来复用。TCG 就是完成这件事的核心组件。</p>
+<p>后面要讲的 <a href="https://www.qemu.org/docs/master/devel/tcg-ops.html">TCG IR</a>、<a href="https://www.qemu.org/docs/master/devel/tcg.html">Translation Block</a> 和代码缓存，都是围绕这个目标服务的：<strong>尽可能减少重复翻译，尽可能减少重复解释，让 Guest 代码在 Host 上更高效地执行。</strong></p>
+<hr />
+<p>了解了这三种翻译技术的定位之后，我们来看 TCG 具体使用了什么样的中间表示来完成动态翻译。</p>
+<h2 id="tcg-ir">TCG IR 介绍<a class="headerlink" href="#tcg-ir" title="Permanent link">&para;</a></h2>
+<p>可以把 <a href="https://www.qemu.org/docs/master/devel/tcg-ops.html">TCG IR</a> 理解成 QEMU 在内部使用的一种“中间语言”。它既不是 Guest 真正执行的指令，也不是 Host 最终运行的机器码，而是位于两者之间的一层表示。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Guest 指令
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    ↓
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>翻译前端：分析这条指令的语义
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    ↓
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>TCG IR
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    ↓
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>翻译后端：把 IR 生成为当前 Host 可执行的代码
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>    ↓
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>Host 机器码
+</code></pre></div>
+<p>这层 IR 在于它把“理解指令语义”和“生成目标代码”这两件事分开了。前端只需要关心 Guest 指令本身的含义，后端只需要关心怎样把统一的 IR 变成当前 Host 能运行的机器码。这样一来，QEMU 就不必为每一种 Guest/Host 组合分别写一整套专门的翻译器，而是可以把问题拆成两部分：先把 Guest 指令翻译成 IR，再把 IR 翻译成 Host 代码。</p>
+<p>以 RISC-V 的 <code>addi a0, a0, 1</code> 为例。它的语义很简单：读取寄存器 <code>a0</code> 的值，加上立即数 <code>1</code>，再把结果写回 <code>a0</code>。如果在 QEMU 源码中查找这条指令的翻译入口，可以在 <code>target/riscv/insn_trans/trans_rvi.c.inc</code> 中看到：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">trans_addi</span><span class="p">(</span><span class="n">DisasContext</span><span class="w"> </span><span class="o">*</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">arg_addi</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">gen_arith_imm_fn</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">EXT_NONE</span><span class="p">,</span><span class="w"> </span><span class="n">tcg_gen_addi_tl</span><span class="p">,</span><span class="w"> </span><span class="n">gen_addi2_i128</span><span class="p">);</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="p">}</span>
+</code></pre></div>
+<p>这段代码本身并没有直接生成某条 Host 汇编，而是把这条 Guest 指令交给一段更通用的逻辑处理。这里最关键的是传入了 <code>tcg_gen_addi_tl</code>。从名字上就可以看出，它不是“执行加法”，而是“生成一条加立即数的 TCG 操作”。也就是说，QEMU 在这里做的事情，是把 <code>addi</code> 的语义组织成 TCG IR，而不是立刻输出最终机器码。</p>
+<p>如果继续看 <code>target/riscv/translate.c</code> 中的通用逻辑，可以把核心过程理解为下面这段精简代码：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">gen_arith_imm_fn</span><span class="p">(</span><span class="n">DisasContext</span><span class="w"> </span><span class="o">*</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">arg_i</span><span class="w"> </span><span class="o">*</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">DisasExtend</span><span class="w"> </span><span class="n">ext</span><span class="p">,</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">                             </span><span class="kt">void</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">func</span><span class="p">)(</span><span class="n">TCGv</span><span class="p">,</span><span class="w"> </span><span class="n">TCGv</span><span class="p">,</span><span class="w"> </span><span class="n">target_long</span><span class="p">),</span><span class="w"> </span><span class="p">...)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">TCGv</span><span class="w"> </span><span class="n">dest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dest_gpr</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="o">-&gt;</span><span class="n">rd</span><span class="p">);</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="n">TCGv</span><span class="w"> </span><span class="n">src1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">get_gpr</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="o">-&gt;</span><span class="n">rs1</span><span class="p">,</span><span class="w"> </span><span class="n">ext</span><span class="p">);</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">func</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">src1</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="o">-&gt;</span><span class="n">imm</span><span class="p">);</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="n">gen_set_gpr</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="o">-&gt;</span><span class="n">rd</span><span class="p">,</span><span class="w"> </span><span class="n">dest</span><span class="p">);</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">}</span>
+</code></pre></div>
+<p><code>dest_gpr(ctx, a-&gt;rd)</code> 取到目标寄存器 <code>rd</code> 对应的内部表示；在这个例子里，<code>rd</code> 就是 <code>a0</code>。接着，<code>get_gpr(ctx, a-&gt;rs1, ext)</code> 取到源寄存器 <code>rs1</code> 的内部表示；这里 <code>rs1</code> 也是 <code>a0</code>。这一步并不是直接去读宿主机真实寄存器，而是把 Guest 寄存器映射到翻译阶段可操作的对象上。</p>
+<p>代码调用了 <code>func(dest, src1, a-&gt;imm)</code>。在 <code>trans_addi</code> 里传入的 <code>func</code> 正是 <code>tcg_gen_addi_tl</code>，所以这里的实际效果就是：向当前的 TCG IR 序列追加一条“加立即数”的操作，其含义相当于：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>dest = src1 + imm
+</code></pre></div>
+<p>在这个例子中，也就是把 <code>a0</code> 当前对应的值加上立即数 <code>1</code>，把结果放到 <code>dest</code> 对应的值里。最后，<code>gen_set_gpr(ctx, a-&gt;rd, dest)</code> 再把这个结果关联回 Guest 的目标寄存器状态。这样，<code>addi a0, a0, 1</code> 的语义就被完整表达出来了。</p>
+<p>这里的 <code>TCGv</code> 可以先把它理解成 TCG 在翻译阶段使用的一种“值对象”。它表示当前这条翻译链路里要操作的值。类似地，<code>tcg_gen_*()</code> 这一类函数也可以先理解成“往当前 IR 中追加一条操作”。因此，阅读这类代码时，重点不是把它看成“执行了一条加法”，而是要把它看成“描述了一条加法应该如何在后续代码生成阶段被实现”。</p>
+<p>从这个例子可以看出，一条 Guest 指令进入 QEMU 后，通常不会直接对应成一条 Host 指令。更常见的情况是，它先被拆成若干更小、更通用的中间操作。这些中间操作共同组成 TCG IR，之后再由后端根据当前 Host 的架构，把它们翻译成真正可执行的机器码。</p>
+<hr />
+<h2 id="tcg_1">TCG 后端翻译流程<a class="headerlink" href="#tcg_1" title="Permanent link">&para;</a></h2>
+<p>在 QEMU TCG 中，翻译与执行的基本单位是 <strong>Translation Block（TB）</strong>。QEMU 以当前 Guest PC 为起点，沿当前执行路径向前翻译一段 Guest 指令序列，并将其生成为一段可在 Host 上直接执行的机器码。这个翻译结果连同相关元数据一起构成一个 TB。后续如果再次执行到相同位置，且相关上下文仍然匹配，QEMU 就可以直接复用该 TB，而不必重新翻译。</p>
+<p>TB 与传统编译器中的基本块有密切关系，但两者并不完全等同。可以把 TB 近似理解为：QEMU 在一次翻译过程中，从某个入口出发，沿线性执行路径得到的一段代码。翻译通常会在以下位置停止：遇到控制流转移、遇到异常或特权相关边界，或者跨越代码页边界。也就是说，QEMU 并不是“逐条指令翻译并执行”，而是“按块翻译、按块缓存、按块执行”。</p>
+<p>多个 TB 在满足条件时还可以直接链接。这样，执行流就不必在每个 TB 结束后都回到主循环重新查找下一个 TB，而是可以从上一个 TB 直接跳入目标 TB。后文提到的 chained TB，正是这一机制的体现。</p>
+<p>下面这张图给出了 TB 的基本执行方式：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>                        +---------------------+
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>         1)             |                     |
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>       +----------------+   QEMU TCG engine   +---------------+
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>       |          +----&gt;|                     |&lt;---+          |
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>       |          |     +----------+---^------+    |          |
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>       |          |                |   |   4)      |          | 5)
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>       |          |            3)  |   +------+    |          |
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>       v          |2)              v          |    | 6)       v
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>+---------------+ |        +---------------+  |    |  +---------------+
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>|   prologue    | |        |   prologue    |  |    |  |   prologue    |
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>+---------------+ |        +---------------+  |    |  +---------------+
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>|               | |        |               |  |    |  |               |
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>|  Translation  | |        |  Translation  |  |    |  |  Translation  |
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>|     Block1    | |        |     Block2    |  |    |  |     Block3    |
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>|               | |        |               |  |    |  |               |
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>+---------------+ |        +---------------+- |    |  +---------------+
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>|   epilogue    | |        |   epilogue    |  |    |  |   epilogue    |
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a>+------+--------+ |        +-------+-------+  |    |  +------+--------+
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>       +----------+                +----------+    +---------+
+</code></pre></div>
+<p>如果把整个过程进一步抽象，那么 TCG 的运行主线可以概括为：先根据当前 Guest PC 查找 TB 缓存；若命中，则直接执行已有 TB；若未命中，则触发翻译，生成新的 TB，写入缓存，再开始执行。其逻辑如下：</p>
+<p>```text id="fvh417"
+                              +---------------+
+       +----------------------| Do something  |-------------------+
+       |                      +---------------+                   |
+       v                                                          |
++--------------+       +----------------+ Y       +---------+     |
+|   Guest PC   +------&gt;| Check TB Cache +--------&gt;| Exec TB +-----+
++--------------+       +------+---------+         +---------+
+                              | N                      ^
+                              v                        |
+                        +-------------+                |
+                        | translation |                |
+                        +-----+-------+                |
+                              v                        |
+                       +-----------------+             |
+                       |Save TB to Cache +-------------+
+                       +-----------------+
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>在 QEMU 源码中，这一过程对应 `accel/tcg/cpu-exec.c` 中的执行主循环。下面这段代码展示了 TB 查找、缓存未命中时触发翻译、写回缓存，以及进入执行的基本流程：
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>```c
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>// 截取自：accel/tcg/cpu-exec.c -&gt; cpu_exec_loop()
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>// 1. 查找 TB Cache (Fast Path)
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>tb = tb_lookup(cpu, s);
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>if (tb == NULL) {
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    /* ---------------------------------------------------- */
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>    /* 2. 缓存未命中，触发 JIT 动态翻译                         */
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    /* ---------------------------------------------------- */
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>    mmap_lock();
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>    // tb_gen_code 负责分配空间、前向翻译、后向二进制生成
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>    tb = tb_gen_code(cpu, s);
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>    mmap_unlock();
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>    // 3. 将新翻译的 TB 缓存回 CPU 局部的 tb_jmp_cache 哈希表
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>    h = tb_jmp_cache_hash_func(s.pc);
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>    jc = cpu-&gt;tb_jmp_cache;
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>    jc-&gt;array[h].pc = s.pc;
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>    qatomic_set(&amp;jc-&gt;array[h].tb, tb);
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>}
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>// 4. (可选) 优化项：直接跳转 (Direct Block Chaining)
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>// 允许的话将上个块的跳转地址直接改写指向当前 tb，跳过后续的 tb_lookup
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>if (last_tb) {
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>    tb_add_jump(last_tb, tb_exit, tb);
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>}
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>
+<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>// 5. 陷入执行这一代码块：cpu_loop_exec_tb 内部调用 cpu_tb_exec
+<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a>cpu_loop_exec_tb(cpu, tb, s.pc, &amp;last_tb, &amp;tb_exit);
+</code></pre></div></p>
+<p>这段代码体现了 TCG 主循环中最重要的两条路径。</p>
+<p>第一条是快路径。<code>tb_lookup(cpu, s)</code> 负责查找当前是否已经存在可复用的 TB。如果查找成功，QEMU 就可以直接进入执行阶段，而不必再次翻译同一段代码。</p>
+<p>第二条是慢路径。如果缓存未命中，就调用 <code>tb_gen_code(cpu, s)</code> 生成新的 TB。生成完成后，QEMU 会把该 TB 写回缓存，以便后续重复利用。这样，翻译成本主要集中在“首次进入某段代码”时支付，而不是在每次执行时重复支付。</p>
+<p>在整个过程中，<code>tb_gen_code()</code> 是最关键的入口之一。它并不只是分配一个 TB 结构体，而是真正启动了一次完整的翻译过程。沿着 <code>accel/tcg/translate-all.c</code> 的调用链继续向下，可以看到 TCG 明确分成两个阶段：前端翻译负责把 Guest 机器码转换成 TCG IR，后端翻译负责把 TCG IR 生成为 Host 机器码。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1">// 截取自 tb_gen_code 的底层执行集 set_jmp_reset_and_gen_code</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1">// 首先初始化/重置 TCG 的翻译上下文对象 tcg_ctx</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">tcg_func_start</span><span class="p">(</span><span class="n">tcg_ctx</span><span class="p">);</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1">// 【A 阶段】前端翻译：从 Guest 机器码 =&gt; TCG IR (中间表示)</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1">// 这里 cs-&gt;cc-&gt;tcg_ops-&gt;translate_code 实际上对应了如 RISC-V 目标后端的 gen_intermediate_code</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">cs</span><span class="o">-&gt;</span><span class="n">cc</span><span class="o">-&gt;</span><span class="n">tcg_ops</span><span class="o">-&gt;</span><span class="n">translate_code</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span><span class="w"> </span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">max_insns</span><span class="p">,</span><span class="w"> </span><span class="n">pc</span><span class="p">,</span><span class="w"> </span><span class="n">host_pc</span><span class="p">);</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1">// 【B 阶段】后端翻译：从 TCG IR =&gt; Host 宿主机机器码</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1">// tcg_gen_code 函数内部包含常量折叠、死代码消除优化 (tcg_optimize)，</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="c1">// 并最终调用依赖 Host 架构的 tcg_out_op 生成原生指令，装填进 TB 执行区。</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="k">return</span><span class="w"> </span><span class="n">tcg_gen_code</span><span class="p">(</span><span class="n">tcg_ctx</span><span class="p">,</span><span class="w"> </span><span class="n">tb</span><span class="p">,</span><span class="w"> </span><span class="n">pc</span><span class="p">);</span>
+</code></pre></div>
+<p>这两步正好对应了前一节介绍的 TCG IR 机制。<code>translate_code</code> 负责读取 Guest 指令、分析其语义，并通过 <code>tcg_gen_*()</code> 之类的接口逐步构造 IR；<code>tcg_gen_code</code> 则负责对这些 IR 做必要的整理与优化，并最终生成真正的 Host 机器码。至此，一次完整的“Guest 指令序列 → TCG IR → Host 机器码”的翻译闭环才算完成。</p>
+<p>翻译完成后，接下来的问题是：这段宿主机代码究竟如何被执行？这一过程由 <code>cpu_tb_exec()</code> 完成。它从 TB 中取出已经生成好的机器码入口地址，然后通过 <code>tcg_qemu_tb_exec</code> 把控制流切换到这段 JIT 代码上，让宿主机 CPU 直接执行它。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1">// 截取自 accel/tcg/cpu-exec.c -&gt; cpu_tb_exec()</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">static</span><span class="w"> </span><span class="kr">inline</span><span class="w"> </span><span class="n">TranslationBlock</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">QEMU_DISABLE_CFI</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">cpu_tb_exec</span><span class="p">(</span><span class="n">CPUState</span><span class="w"> </span><span class="o">*</span><span class="n">cpu</span><span class="p">,</span><span class="w"> </span><span class="n">TranslationBlock</span><span class="w"> </span><span class="o">*</span><span class="n">itb</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="o">*</span><span class="n">tb_exit</span><span class="p">)</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="p">{</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="w">    </span><span class="c1">// 获取 JIT 编译好的那块内存的指针（也就是我们之前介绍 code_buffer 里的 host 机器码）</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="w">    </span><span class="k">const</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="o">*</span><span class="n">tb_ptr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itb</span><span class="o">-&gt;</span><span class="n">tc</span><span class="p">.</span><span class="n">ptr</span><span class="p">;</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="c1">// tcg_qemu_tb_exec 是一个函数指针强转，相当于直接按照宿主机 ABI 的调用约定，</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="c1">// call 到刚才生成的 tb_ptr 机器码上去！这就脱离了 C 语言的主循环，真正让 CPU 撒着欢儿跑指令去了。</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="n">ret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">tcg_qemu_tb_exec</span><span class="p">(</span><span class="n">cpu_env</span><span class="p">(</span><span class="n">cpu</span><span class="p">),</span><span class="w"> </span><span class="n">tb_ptr</span><span class="p">);</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="w">    </span><span class="c1">// 当遇到需要退出回主循环的跳出点（比如跨页、异常、IO），机器码会 jump 到 epilogue 恢复环境，</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="c1">// 最后再 return 回 ret，告诉 QEMU 我们执行到哪里了，为什么退出。</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="w">    </span><span class="c1">// ...</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="p">}</span>
+</code></pre></div>
+<p>这一步标志着执行阶段的边界发生了变化。在 <code>cpu_tb_exec()</code> 之前，QEMU 仍然主要运行在 C 代码层面，负责查找、翻译、缓存和调度；而进入 <code>tcg_qemu_tb_exec</code> 之后，真正执行的已经是刚刚生成出来的 Host 机器码。只有当 TB 执行到某个退出点时，控制权才会回到 QEMU 主循环。常见的退出原因包括：需要重新检查中断、处理异常、执行 I/O、跨页继续查找，或者当前 TB 无法再直接链接到下一个 TB。</p>
+<p>因此，TCG 的完整工作路径可以概括为：</p>
+<p><strong>查找 TB 缓存 → 若未命中则执行前端翻译与后端发码 → 写入缓存 → 执行生成出的 Host 机器码 → 遇到退出条件后返回主循环。</strong></p>
+<p>这就是 QEMU TCG 最核心的执行闭环。</p>
+<p>为了进一步减少频繁返回主循环的成本，QEMU 还引入了 <strong>direct block chaining</strong>。如果上一个 TB 的某个出口在当前条件下可以确定将会跳转到下一个 TB，那么 QEMU 可以把这个出口直接改写为跳向目标 TB 的机器码入口。这样，后续执行时就不必再次经过 <code>tb_lookup</code>。不过，这种直接链接并不是无条件成立的，它受到地址翻译、页边界和 CPU 状态等约束，因此只会在满足条件时启用。</p>
+<p>除了翻译与执行本身，TB 的正确复用还依赖一套失效机制。因为一旦 Guest 代码、映射关系或相关页属性发生变化，原先生成的 TB 就可能已经不再有效。如果仍继续执行旧 TB，就会破坏正确性。因此，QEMU 必须能够在代码发生变化时及时使相关 TB 失效，并清理已有的直接链接关系。</p>
+<p>在用户态仿真中，这一问题通常通过代码页写保护来处理。QEMU 在生成 TB 后，会将对应代码页设置为写保护；如果之后对该页发生写入，就会触发信号，QEMU 进而使该页上的 TB 失效，并撤销相关缓存和跳转关系。</p>
+<p>在系统模式下，情况更加复杂。此时 QEMU 通过 <strong>SoftMMU</strong> 模拟客户机的访存路径，并利用 <strong>TLB</strong> 缓存地址转换结果。TB 的索引与链接策略需要考虑虚拟地址到物理地址的映射关系，以避免映射变化后继续错误复用旧 TB。为了减少这种不一致，链式跳转通常被限制在同一客户机页内；RAM 和 ROM 访问可以通过宿主机内存偏移快速定位，而 MMIO 则仍需回到 QEMU 的设备模型代码进行处理。</p>
+<p>在翻译前夕，vCPU 对指令的获取通常出现在以下几种场景中：</p>
+<ul>
+<li>在翻译客户机代码时，需要根据当前地址读取 Guest 指令并送入前端翻译流程。</li>
+<li>在搜索 TB 哈希表时，需要依据地址与相关状态查找已有 TB。</li>
+<li>在链式 TB 跳转时，如果目标仍位于可直接处理的范围内，可以继续沿已知路径执行；若跨页或条件不再满足，则需要退回常规查找或重新翻译流程。</li>
+</ul>
+<p>这种设计在性能与正确性之间做了折中：一方面尽量通过缓存和直接链接减少重复查找，另一方面又通过页边界、失效机制和主循环返回点保证执行语义不被破坏。</p>
+<p>随着虚拟 CPU 数量增加，单线程执行会逐渐成为瓶颈。为此，QEMU 又引入了 <strong>MTTCG（Multi-threaded TCG）</strong>，允许不同 vCPU 在线程级并行执行各自的 TCG 路径。不过，MTTCG 改变的是并发执行方式，而不是这里介绍的基本翻译模型；TB 仍然是翻译、缓存和执行的基本单位。</p>
+<blockquote>
+<p>我们后续会通过单独的章节，详细讲解 softmmu 的实现。</p>
+</blockquote>
+<hr />
+<h2 id="_4">拓展阅读<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<h3 id="tcg_2">多线程 TCG<a class="headerlink" href="#tcg_2" title="Permanent link">&para;</a></h3>
+<p>前面介绍的 TCG 执行流程，默认可以理解为“一个 vCPU 沿着自己的翻译与执行路径前进”。但在 system mode 下，客户机往往不止一个 vCPU。如果仍然让所有 vCPU 串行轮转执行，那么随着 vCPU 数量增加，性能很快就会受到限制。为了解决这个问题，QEMU 引入了多线程 TCG，也就是 <strong>MTTCG</strong>。</p>
+<p>MTTCG 的基本思想并不复杂：<strong>每个 vCPU 对应一个宿主线程</strong>，这样多个 vCPU 就可以并行执行各自的 TCG 路径。需要注意的是，MTTCG 改变的是“谁来执行”，而不是“如何翻译”。TB 仍然是翻译、缓存和执行的基本单位；<code>tb_lookup</code>、<code>tb_gen_code</code>、<code>cpu_tb_exec</code> 这一整套流程，在多线程环境下依然成立。</p>
+<p>多线程执行带来的第一个问题，是查找路径如何避免过多加锁。QEMU 的做法是尽量让热路径保持轻量：每个 vCPU 有自己的 <code>tb_jmp_cache</code>，同时系统还维护全局 TB 哈希表。查找已有 TB 的过程主要依赖原子读写，只有在真正需要修改共享状态时，例如生成新 TB、建立或撤销 TB 之间的直接跳转时，才进入加锁路径。</p>
+<p>第二个问题，是代码生成如何同步。因为生成 TB 不只是构造一个数据结构，还会向代码缓存中写入新的宿主机机器码。如果多个线程同时修改同一片缓存区域，就必须进行协调。在 user mode 下，翻译缓冲区是共享的，因此生成和回填过程需要串行化；在 system mode 下，QEMU 会尽量减少翻译阶段对全局锁的依赖，但只要涉及共享代码缓存或共享元数据，仍然需要同步保护。</p>
+<p>第三个问题，是失效与一致性。假设某个 vCPU 正在执行某个 TB，而另一个 vCPU 修改了相关地址空间状态，或者触发了 TLB flush，那么原来的 TB 可能已经不再安全。这时，QEMU 必须撤销旧的直接跳转关系，清理缓存项，并让相关 vCPU 在一个安全的时点看到更新后的状态。因此，在 MTTCG 中，“并行执行”并不意味着“完全无同步”，而是尽量让同步发生在必要的位置，而不是落在最常见的查找和执行路径上。</p>
+<p>因此，可以把 MTTCG 理解为：<strong>在不改变 TCG 基本翻译模型的前提下，让多个 vCPU 能够更自然地利用宿主机的多核能力。</strong> 它提高的是并发执行能力，而不是改变 TB 的含义或 TCG 的基本工作方式。</p>
+<hr />
+<h3 id="_5">直接跳转优化<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>如果每执行完一个 TB，都回到 QEMU 主循环，再由主循环查找下一个 TB，那么这条执行路径中会不断出现额外开销。QEMU 为了减少这类开销，引入了 <strong>TB 之间的直接跳转</strong>。它的核心思想是：如果当前 TB 的某个出口已经可以确定下一个 TB 是谁，那么就不必回到主循环重新查找，而是直接跳过去。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>            1)          +---------------------+
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>       +----------------+   QEMU TCG engine   +---------------------------+
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>       |                +---------------------+                           |
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>       v                                                                  |
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>+---------------+          +---------------+          +---------------+   |
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>|   prologue    |          |   prologue    |   3)     |   prologue    |   |
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>+---------------+ +------&gt; +---------------+  +-----&gt; +---------------+   |
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>|               | |        |               |  |       |               |   | 5)
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>|  Translation  | |        |  Translation  |  |       |  Translation  |   |
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>|     Block1    | |        |     Block2    |  |       |     Block3    |   |
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>|               | |2)      |               |  |       |               |   |
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>+---------------+-+        +---------------+--+       +---------------+---+
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>|   epilogue    |          |   epilogue    |          |   epilogue    |
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>+------+--------+          +-------+-------+          +------+--------+
+</code></pre></div>
+<p>这个优化的意义很直接。QEMU 主循环本来负责很多事情，例如查找 TB、处理中断、检查异常条件等。如果一条执行路径上的每个 TB 都要经过这一层，那么即使 Guest 代码本身很简单，也会不断支付“退出 TB → 回到主循环 → 再进入下一个 TB”的固定成本。直接跳转就是为了尽量省掉这一步。</p>
+<p>不过，TB 之间能否直接链接，并不是只看 Guest PC 是否连续。QEMU 在生成 TB 时，会假设某些 CPU 状态在这个 TB 内保持不变，例如特权级、地址空间相关状态、部分架构相关上下文等。因此，一个 TB 不只是“某段 Guest 地址对应的代码”，而是“在某些状态前提下，这段 Guest 地址对应的代码”。如果这些前提变化了，那么即使 Guest PC 没变，旧 TB 也可能不再适用。</p>
+<p>在执行路径上，常见的快速直跳方式有两类。</p>
+<p>第一类是 <code>lookup_and_goto_ptr</code>。它的做法是：先快速查一下目标 TB 是否已经存在；如果存在，就直接跳过去；如果不存在，就退回 epilogue，再进入主循环，让主循环决定下一步该怎么做。这种方式的特点是：它尽量快，但仍然保留了“查不到就回主循环”的退路。</p>
+<p>第二类是 <code>goto_tb + exit_tb</code>。它会在当前 TB 中预留一个跳转槽位。第一次执行到这里时，TB 先通过 <code>exit_tb</code> 返回主循环，主循环确认目标 TB 之后，再把这个槽位回填为直接跳转到目标 TB 的机器码。这样，下次执行到同样的位置时，就可以直接跳过去，不必再查找一次。</p>
+<p>这类优化有一个非常重要的限制：<strong>通常只在同一个 Guest 页内成立。</strong> 原因并不是实现“恰好这样写”，而是因为一旦跨页，地址翻译、页属性变化和 TB 失效问题都会变得更复杂。把直接链接限制在页内，可以让这些问题更容易控制。因此，当目标跳转跨页时，QEMU 往往会退回常规路径，重新查找或重新翻译。</p>
+<p>所以，TB 直接跳转的本质可以概括为一句话：<strong>在不破坏正确性的前提下，尽量减少返回主循环的次数。</strong></p>
+<hr />
+<h3 id="_6">代码缓存管理<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p>TCG 之所以比解释执行更高效，一个关键原因是：<strong>翻译结果不是一次性使用，而是会被缓存起来。</strong> 这块保存翻译结果的区域，就是代码缓存。</p>
+<p>可以把代码缓存理解成一块专门分配出来的可执行内存。QEMU 在这里存放两类内容：一类是和当前 Host 相关的公共代码，例如 prologue 和 epilogue；另一类是各个 TB 自身对应的宿主机机器码。当前 TB 的入口地址会记录在相应字段中，之后执行时，QEMU 就可以直接跳到这段机器码上运行，而不必重新翻译。</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>code_buffer = mmap()
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>|                                             TCGContext.code_ptr
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>v                                              v
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>+-----------+----------+-------------+---------+------------------+
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>|           |          |             |         |                  |
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>|  prologue | epilogue |  TB.struct  | TB.code |     ...          |
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>|           |          |             |         |                  |
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>+-----------+----------+-------------+---------+------------------+
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>^           ^                        ^
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>|           |                        |
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>|           |                        tb.tc.ptr
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>|           tcg_code_gen_epilogue
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>tcg_qemu_tb_exec
+</code></pre></div>
+<p>从执行角度看，代码缓存的作用非常明确。第一次遇到某段 Guest 代码时，QEMU 需要翻译；翻译完成后，结果写入代码缓存。下一次再执行到同样的位置，只要相关状态仍然匹配，就可以直接复用缓存中的 TB。也就是说，代码缓存把“首次翻译的代价”摊薄到了后续多次执行上。</p>
+<p>代码缓存当然不是无限的。当缓存空间不足时，QEMU 需要进行 <strong>TB flush</strong>。所谓 flush，就是把当前缓存中的 TB 清掉，再从空状态继续生成新的翻译结果。这个策略看起来比较直接，但实现简单，而且和 TB 的失效机制比较容易结合。</p>
+<p>除了“空间不够”之外，TB 还可能因为别的原因失效。最常见的情况是：Guest 代码发生了修改，或者地址映射发生了变化。此时，原来缓存中的 TB 已经不能再可靠地代表那段 Guest 代码，QEMU 就必须把它废弃。也就是说，代码缓存管理不仅仅是“内存够不够”的问题，更重要的是维护“缓存中的 TB 现在是否仍然有效”。</p>
+<p>因此，代码缓存并不是一个普通的“存放 JIT 代码的数组”，而是 TCG 整个运行机制的中心。TB 的生成、复用、直接跳转、失效和刷新，都是围绕这块缓存组织起来的。</p>
+<hr />
+<h3 id="tcg_3">TCG 插件<a class="headerlink" href="#tcg_3" title="Permanent link">&para;</a></h3>
+<p>QEMU 还提供了一套 <strong>TCG 插件机制</strong>，用于在翻译和执行过程中插入额外的观测逻辑。它的主要用途不是改变客户机语义，而是做分析、统计、跟踪和实验。</p>
+<p>这套机制的一个重要特点是：它建立在 TCG 的统一翻译框架之上，因此可以实现较强的<strong>架构无关性</strong>。如果直接从 Guest ISA 级别做工具，不同架构往往需要分别实现；而插件机制依托 QEMU 的翻译流程，可以在更统一的层面观察 TB、指令执行以及内存访问行为。</p>
+<p>插件通常在 <code>qemu_plugin_install</code> 中注册回调。之后，QEMU 会在合适的时机触发这些回调，例如：</p>
+<ul>
+<li>在 TB 翻译时，插件可以枚举这个 TB 中包含的指令；</li>
+<li>在指令执行前，插件可以执行对应的执行回调；</li>
+<li>在成功的 load/store 之后，插件可以得到内存访问相关信息。</li>
+</ul>
+<p>这里有两个边界需要特别清楚。</p>
+<p>第一，插件更适合“观测”，不适合“控制”。也就是说，它主要用来收集信息，而不是把自己变成系统语义的一部分。</p>
+<p>第二，很多插件句柄只在回调期间有效，不能长期持有。比如某个 TB 句柄、某条指令句柄或某次内存访问句柄，通常都只是临时对象。如果插件需要长期保存信息，就必须在回调中把需要的数据复制出来。</p>
+<p>在性能上，插件机制本身也可能带来明显开销。因为一旦为每条指令、每次访存都注册复杂回调，系统很容易被观测逻辑拖慢。为此，QEMU 还提供了一些相对轻量的统计手段，例如 inline operation 和 scoreboard，用来做低成本计数和简单状态记录。实际使用时，通常需要在“信息丰富程度”和“插桩开销”之间做平衡。</p>
+<p>因此，可以把 TCG 插件理解为：<strong>在不改动 QEMU 主体执行语义的前提下，为研究、调试和分析提供一套统一的观测入口。</strong></p>
+<hr />
+<p>插件适合在运行时进行自定义插桩。如果你只是想快速定位热点代码或分析 TCG 翻译开销，QEMU 还集成了更轻量的性能分析支持。</p>
+<h2 id="tcg_4">TCG 性能分析<a class="headerlink" href="#tcg_4" title="Permanent link">&para;</a></h2>
+<p>当需要分析 TCG 的性能时，一个常见困难是：<code>perf</code> 看到的往往只是 QEMU 进程中的一段匿名 JIT 代码，而不是“这是哪个 TB、对应哪段 Guest 代码”。为了解决这个问题，QEMU 提供了 <code>-perfmap</code> 和 <code>-jitdump</code> 两种辅助方式，把 JIT 代码与 Guest 代码之间的对应关系暴露给 Linux <code>perf</code>。</p>
+<p><code>-perfmap</code> 较轻量。它会生成一份映射文件，使 <code>perf</code> 能够把热点样本定位到相应的 JIT 代码块上。对于快速查看“哪些 TB 最热”，这种方式比较直接。</p>
+<p><code>-jitdump</code> 提供的信息更完整。它不仅记录映射关系，还可以导出更多与 JIT 代码相关的调试信息。不过，使用它时通常还需要经过 <code>perf inject</code>，把这些信息合并进 <code>perf.data</code>，之后才能正常做性能报告。</p>
+<p>常见的命令如下：</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="c1"># 轻量级性能分析，仅生成 guest↔host 映射，直接 perf report</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>perf<span class="w"> </span>record<span class="w"> </span><span class="nv">$QEMU</span><span class="w"> </span>-perfmap<span class="w"> </span><span class="nv">$REMAINING_ARGS</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>perf<span class="w"> </span>report
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="c1"># 保存 JIT 代码与调试信息，需先 perf inject 合并到 perf.data 再报告</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>perf<span class="w"> </span>record<span class="w"> </span>-k<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="nv">$QEMU</span><span class="w"> </span>-jitdump<span class="w"> </span><span class="nv">$REMAINING_ARGS</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="nv">DEBUGINFOD_URLS</span><span class="o">=</span><span class="w"> </span>perf<span class="w"> </span>inject<span class="w"> </span>-j<span class="w"> </span>-i<span class="w"> </span>perf.data<span class="w"> </span>-o<span class="w"> </span>perf.data.jitted
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>perf<span class="w"> </span>report<span class="w"> </span>-i<span class="w"> </span>perf.data.jitted
+</code></pre></div>
+<p>在使用这些工具时，需要注意一点：它们回答的是“热点在哪里”，而不是自动告诉你“为什么这里会慢”。例如，某个 TB 很热，可能是因为它本来就位于热点循环中；也可能是因为没有成功形成直接跳转，导致频繁回到主循环；还可能是因为 TB 经常失效，不得不反复重新翻译。单靠一份 <code>perf report</code>，通常只能看到表面现象。要进一步判断原因，还需要结合 TB 结构、缓存命中情况、失效频率，以及具体 Guest 工作负载来分析。</p>
+<p>因此，<code>-perfmap</code> 和 <code>-jitdump</code> 更像是性能分析的入口，而不是最终结论本身。它们帮助我们把“匿名 JIT 代码”重新映射回“具体的 TB 和 Guest 执行路径”，从而让后续分析真正有抓手。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../qemu-cpu-model/" class="md-footer__link md-footer__link--prev" aria-label="上一页: a. CPU 建模流程">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                a. CPU 建模流程
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../qemu-insn/" class="md-footer__link md-footer__link--next" aria-label="下一页: c. 模拟客户机指令">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                c. 模拟客户机指令
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Brought to you by <a href="https://github.com/gevico">Gevico Tech Open Community</a>. Available freely under the MIT license.
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../../..","features":["content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.top","navigation.tracking","navigation.tabs","content.comments","search.suggest","search.highlight","search.share","header.autohide"],"search":"../../../../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"已复制","clipboard.copy":"复制","search.result.more.one":"在该页上还有 1 个符合条件的结果","search.result.more.other":"在该页上还有 # 个符合条件的结果","search.result.none":"没有找到符合条件的结果","search.result.one":"找到 1 个符合条件的结果","search.result.other":"# 个符合条件的结果","search.result.placeholder":"键入以开始搜索","search.result.term.missing":"缺少","select.version":"选择当前版本"},"version":null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.0df4f2d0.min.js"></script>
+      
+        <script src="../../../../plugins/javascripts/toc-collapse.js"></script>
+      
+        <script src="../../../../plugins/javascripts/ppt-slides.js"></script>
+      
+        <script src="../../../../plugins/javascripts/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

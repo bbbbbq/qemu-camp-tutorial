@@ -1,0 +1,255 @@
+.ppt-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 0.4em;
+    padding: 0;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 0.3em;
+    background: var(--md-default-bg-color);
+    color: var(--md-default-fg-color);
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.ppt-toggle svg {
+    width: 1em;
+    height: 1em;
+}
+
+.ppt-toggle[aria-pressed="true"] {
+    border-color: var(--md-primary-fg-color);
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+}
+
+.ppt-deck {
+    display: none;
+    margin: 1.5rem 0 0;
+    position: relative;
+    width: 100%;
+    height: var(--ppt-slide-height, 70vh);
+}
+
+.ppt-slides {
+    position: relative;
+    height: 100%;
+}
+
+.ppt-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: auto;
+}
+
+.ppt-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: auto;
+}
+
+.ppt-tools {
+    position: absolute;
+    top: 0;
+    right: 1rem;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 4;
+    pointer-events: auto;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-md-color-scheme="slate"] .ppt-tools {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.ppt-tools::after {
+    content: "";
+    position: absolute;
+    left: -1rem;
+    right: -1rem;
+    bottom: -2.5rem;
+    height: 2.5rem;
+}
+
+.ppt-tools:hover {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.ppt-tool {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 0;
+    border-radius: 0.3rem;
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--md-default-fg-color);
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background 0.2s ease;
+}
+
+[data-md-color-scheme="slate"] .ppt-tool {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.ppt-tool svg {
+    width: 1em;
+    height: 1em;
+}
+
+.ppt-tool:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+[data-md-color-scheme="slate"] .ppt-tool:hover {
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.ppt-tool.is-active {
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+}
+
+.ppt-tool:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ppt-tool.is-flash {
+    animation: ppt-flash 0.6s ease;
+}
+
+@keyframes ppt-flash {
+    0% {
+        background: var(--md-primary-fg-color);
+        color: var(--md-primary-bg-color);
+    }
+    100% {
+        background: var(--md-default-fg-color--lightest);
+        color: var(--md-default-bg-color);
+    }
+}
+
+.ppt-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none;
+    height: 100%;
+    overflow: auto;
+    padding: 2rem 2.5rem;
+    font-size: 1.6em;
+    text-align: left;
+    border-radius: 0.6rem;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    background: var(--md-default-bg-color);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.ppt-slide.is-active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.ppt-slide img {
+    max-width: 100%;
+    max-height: calc(100vh - 8rem);
+    height: auto;
+    object-fit: contain;
+}
+
+.ppt-slide pre {
+    max-height: calc(100vh - 10rem);
+    overflow: auto;
+    line-height: 1.3;
+}
+
+.ppt-slide pre code {
+    line-height: inherit;
+}
+
+.ppt-slide .admonition,
+.ppt-slide details,
+.ppt-slide .md-typeset .admonition,
+.ppt-slide .md-typeset details {
+    font-size: inherit;
+}
+
+.ppt-slide table,
+.ppt-slide table:not([class]),
+.ppt-slide th,
+.ppt-slide td {
+    font-size: .768rem !important;
+}
+
+.ppt-counter {
+    position: absolute;
+    bottom: 1rem;
+    left: 2.5rem;
+    right: 2.5rem;
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--md-default-fg-color--light);
+    z-index: 5;
+    pointer-events: none;
+}
+
+body[data-ppt-mode="slides"] {
+    overflow: hidden;
+}
+
+body[data-ppt-mode="slides"] .md-header,
+body[data-ppt-mode="slides"] .md-sidebar--primary,
+body[data-ppt-mode="slides"] .md-sidebar--secondary,
+body[data-ppt-mode="slides"] .md-footer,
+body[data-ppt-mode="slides"] .md-tabs {
+    display: none;
+}
+
+body[data-ppt-mode="slides"] .md-content {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body[data-ppt-mode="slides"] .ppt-slide,
+body[data-ppt-mode="slides"] .ppt-slide p,
+body[data-ppt-mode="slides"] .ppt-slide li,
+body[data-ppt-mode="slides"] .ppt-slide td,
+body[data-ppt-mode="slides"] .ppt-slide .md-typeset,
+body[data-ppt-mode="slides"] .ppt-slide .admonition {
+    text-align: left;
+}
+
+body[data-ppt-mode="slides"] article.md-content__inner > :not(h1):not(.ppt-deck) {
+    display: none;
+}
+
+body[data-ppt-mode="slides"] .ppt-deck {
+    display: block;
+    position: fixed;
+    inset: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: var(--md-default-bg-color);
+}

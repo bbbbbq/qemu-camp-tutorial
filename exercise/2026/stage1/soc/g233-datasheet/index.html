@@ -1,0 +1,10273 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="GTOC">
+      
+      
+        <link rel="canonical" href="https://github.com/gevico/exercise/2026/stage1/soc/g233-datasheet/">
+      
+      
+        <link rel="prev" href="../g233-exper-manual/">
+      
+      
+        <link rel="next" href="../../gpu/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../../image/Qemu-logo.png">
+      <meta name="generator" content="zensical-0.0.47">
+    
+    
+      
+        <title>G233 SoC 硬件手册（教学版） - QEMU Camp Tutorial</title>
+      
+    
+    
+      
+        
+      
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/modern/main.5e19f6ca.min.css">
+      
+        
+          
+        
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,300i,400,400i,500,500i,700,700i%7CJetBrains+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Inter";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../../plugins/stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../../../plugins/stylesheets/ppt-slides.css">
+    
+    <script>__md_scope=new URL("../../../../..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer" aria-label="导航栏"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#g233-soc" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../../.." title="QEMU Camp Tutorial" class="md-header__button md-logo" aria-label="QEMU Camp Tutorial" data-md-component="logo">
+      
+  <img src="../../../../../image/Qemu-logo.png" alt="QEMU Camp Tutorial">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer" aria-label="导航栏">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            QEMU Camp Tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              G233 SoC 硬件手册（教学版）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to happy mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to happy mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search" aria-label="查找">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="查找">
+  <button type="button" class="md-search__button">
+    查找
+  </button>
+</div>
+      
+    
+    <div class="md-header__source">
+      
+        <a href="https://github.com/gevico/qemu-camp-tutorial" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    gevico/qemu-camp-tutorial
+  </div>
+</a>
+      
+    </div>
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../.." class="md-tabs__link">
+        
+  
+  主页
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../../signup/" class="md-tabs__link">
+        
+  
+  报名
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../../tutorial/2026/" class="md-tabs__link">
+          
+  
+  讲义
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../../" class="md-tabs__link">
+          
+  
+  实验
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../../leaderboards/2026/basic/c/" class="md-tabs__link">
+          
+  
+  排行榜
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../../blogs/" class="md-tabs__link">
+          
+  
+  博客
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+      
+      
+        
+      
+    
+    
+    
+    
+      
+  
+  
+  
+  
+    
+      
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../../news/2026/qemu-camp-project-stage-2026-07-03/" class="md-tabs__link">
+          
+  
+  新闻
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../../.." title="QEMU Camp Tutorial" class="md-nav__button md-logo" aria-label="QEMU Camp Tutorial" data-md-component="logo">
+      
+  <img src="../../../../../image/Qemu-logo.png" alt="QEMU Camp Tutorial">
+
+    </a>
+    QEMU Camp Tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/gevico/qemu-camp-tutorial" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    gevico/qemu-camp-tutorial
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  主页
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../signup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  报名
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  讲义
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  讲义
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2026/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2026
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2026/ch0/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  1. 导学阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  1. 导学阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch0/qemu-dev-env/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. QEMU 开发环境搭建
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch0/gpu-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. GPU 发展历史
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch0/gpgpu-resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. GPGPU 学习资料
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch0/qemu-camp-faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 训练营常见问答
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2026/ch1/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2. 基础阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  2. 基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch1/vm-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. 虚拟技术历史
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch1/qemu-startup-param/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. 启动参数分析
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch1/qemu-init/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. 启动流程分析
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch1/qemu-qom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 面向对象建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch1/qemu-mr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. 地址空间抽象
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch1/qemu-debug/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  f. 常用调试方法
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2026/ch2/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  3. 专业阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_4" id="__nav_3_1_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  3. 专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-cpu-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. CPU 建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-tcg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. TCG 工作原理
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-insn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. 模拟客户机指令
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-softmmu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 模拟硬件 MMU
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-intr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. 模拟中断和异常
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-multi-core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  f. 模拟多核场景
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-machine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  g. 主板建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-hw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  h. 外设建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-clock/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  i. 时钟系统介绍
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  j. GPGPU 原理
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-pcie/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  k. PCIe 模拟方法
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-gpgpu-kernel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  l. kernel 运行机制
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-rust-ffi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  m. Rust FFI 介绍
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-rust-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  n. Rust 建模流程
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch2/qemu-rust-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  o. Rust 测题开发
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2026/ch3/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  4. 项目阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_1_5" id="__nav_3_1_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  4. 项目阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch3/qemu-k230/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. 数字星务计算机
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch3/qemu-cxlemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. 建模 AI 加速卡
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch3/qemu-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. 大模型建模外设
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch3/qemu-wine-ce/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. 应用跨平台转译
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2026/ch3/qemu-ai-dev-guidance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. AI 开发提示
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2025/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2025
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2025
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  1. 导学阶段
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2025/ch1/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2. 基础阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_3" id="__nav_3_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  2. 基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch1/sec1/vm-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. 虚拟技术发展历史
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch1/sec2/hypervisor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. Hypervisor 技术介绍
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_3_4" id="__nav_3_2_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. QEMU 基本知识介绍
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  c. QEMU 基本知识介绍
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch1/sec3/qemu-qom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  面向对象建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch1/sec3/qemu-memory-region/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  地址空间抽象
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2025/ch2/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  3. 专业阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_4" id="__nav_3_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  3. 专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec1/qemu-init/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. QEMU 初始化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_3" id="__nav_3_2_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. QEMU 加速器
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  b. QEMU 加速器
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_3_1" id="__nav_3_2_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Tiny Code Generator
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Tiny Code Generator
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec2/qemu-accel-tcg/tcg-translation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  TCG Translation
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec2/qemu-accel-tcg/tcg-add-guest-insn/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Decodetree
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec2/qemu-accel-tcg/tcg-ir/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  TCG IR
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec2/qemu-accel-kvm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Hypervisor
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_4" id="__nav_3_2_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  c. QEMU Arch 模拟
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  c. QEMU Arch 模拟
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec3/qemu-tcg-riscv/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  RISC-V 模拟
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_5" id="__nav_3_2_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  d. QEMU 硬件建模
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  d. QEMU 硬件建模
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_5_1" id="__nav_3_2_4_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  C 语言建模
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_4_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  C 语言建模
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec4/c-model/machine-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Machine 建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec4/c-model/peripheral-model-uart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  外设建模（串口）
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec4/c-model/peripheral-model-edu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  外设建模（edu）
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec4/c-model/intr-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  中断建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_5_2" id="__nav_3_2_4_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 建模
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_3_2_4_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Rust 建模
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec4/rust-model/rust-in-qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust in QEMU
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec4/rust-model/peripheral-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  外设建模
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_6" id="__nav_3_2_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  e. QEMU 调试
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  e. QEMU 调试
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec5/debug-qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  源码调试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec5/gdbstub/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  远程调试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec5/qemu-log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  日志调试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec5/trace-event/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  追踪事件
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_7" id="__nav_3_2_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  f. QEMU 测试
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  f. QEMU 测试
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec6/qtest/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Qtest
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec6/test-tcg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  TCG 测试
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_4_8" id="__nav_3_2_4_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  g. QEMU 虚拟化实践
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_3_2_4_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  g. QEMU 虚拟化实践
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec7/qemu-virtual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  创建和管理虚拟机
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch2/sec7/emulate-rvh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  模拟 RISCV 虚拟化
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../tutorial/2025/ch3/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  4. 项目阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_5" id="__nav_3_2_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  4. 项目阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch3/sec1/k230-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. QEMU 建模 K230
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch3/sec2/os-test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. QEMU 测评 OS
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2_6" id="__nav_3_2_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  5. 课程附录
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  5. 课程附录
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch4/prof-level-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  a. Prof Level Manual
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch4/g233-board-datasheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  b. G233 Datasheet
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../tutorial/2025/ch5/contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  6. 贡献名录
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2026
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../stage0/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  基础阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_2" id="__nav_4_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../stage0/learning-c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  C 实验
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../stage0/learning-rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 实验
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3" id="__nav_4_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../cpu/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_2" id="__nav_4_2_3_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  CPU 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/cpu-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cpu/cpu-datasheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 硬件手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_3" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_3" id="__nav_4_2_3_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4_2_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  SoC 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../g233-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 硬件手册
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="././" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 硬件手册
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. 概述
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. 文档约定
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 文档约定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.1 数值与端序
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.2 术语：未定义 / 实现定义
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. 系统架构
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 系统架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3.1 顶层框图（示意）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3.2 外设互联概要
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. 地址空间与存储器映射
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 地址空间与存储器映射">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4.1 地址映射总览
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-mmio" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4.2 MMIO 访问规则（通用）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. 处理器与中断子系统
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 处理器与中断子系统">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.1 CPU 概览
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.2 启动与复位
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.3 中断控制器
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-plic" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.4 PLIC 中断源编号
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-wdt" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. 看门狗定时器（WDT）
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 看门狗定时器（WDT）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-wdt_ctrloffset-0x00-control-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.1 <code>WDT_CTRL</code>（Offset <code>0x00</code>）— Control Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-wdt_loadoffset-0x04-load-value-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.2 <code>WDT_LOAD</code>（Offset <code>0x04</code>）— Load Value Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-wdt_valoffset-0x08-current-value-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.3 <code>WDT_VAL</code>（Offset <code>0x08</code>）— Current Value Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-wdt_sroffset-0x0c-status-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.4 <code>WDT_SR</code>（Offset <code>0x0C</code>）— Status Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#635-wdt_keyoffset-0x10-key-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.5 <code>WDT_KEY</code>（Offset <code>0x10</code>）— Key Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-gpio" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. GPIO 控制器
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. GPIO 控制器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#731-gpio_diroffset-0x00-direction-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.1 <code>GPIO_DIR</code>（Offset <code>0x00</code>）— Direction Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#732-gpio_outoffset-0x04-output-data-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.2 <code>GPIO_OUT</code>（Offset <code>0x04</code>）— Output Data Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#733-gpio_inoffset-0x08-input-data-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.3 <code>GPIO_IN</code>（Offset <code>0x08</code>）— Input Data Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#734-gpio_ieoffset-0x0c-interrupt-enable-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.4 <code>GPIO_IE</code>（Offset <code>0x0C</code>）— Interrupt Enable Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#735-gpio_isoffset-0x10-interrupt-status-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.5 <code>GPIO_IS</code>（Offset <code>0x10</code>）— Interrupt Status Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#736-gpio_trigoffset-0x14-interrupt-trigger-type-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.6 <code>GPIO_TRIG</code>（Offset <code>0x14</code>）— Interrupt Trigger Type Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#737-gpio_poloffset-0x18-interrupt-polarity-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.7 <code>GPIO_POL</code>（Offset <code>0x18</code>）— Interrupt Polarity Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-pwm" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8. PWM 控制器
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. PWM 控制器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#831-pwm_chn_ctrloffset-0x10-n0x10-0x00-channel-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.1 <code>PWM_CHn_CTRL</code>（Offset <code>0x10 + N*0x10 + 0x00</code>）— Channel Control
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#832-pwm_chn_periodoffset-0x10-n0x10-0x04-period-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.2 <code>PWM_CHn_PERIOD</code>（Offset <code>0x10 + N*0x10 + 0x04</code>）— Period Value
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#833-pwm_chn_dutyoffset-0x10-n0x10-0x08-duty-cycle-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.3 <code>PWM_CHn_DUTY</code>（Offset <code>0x10 + N*0x10 + 0x08</code>）— Duty Cycle Value
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#834-pwm_chn_cntoffset-0x10-n0x10-0x0c-current-counter" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.4 <code>PWM_CHn_CNT</code>（Offset <code>0x10 + N*0x10 + 0x0C</code>）— Current Counter
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#835-pwm_glboffset-0x00-global-controlstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.5 <code>PWM_GLB</code>（Offset <code>0x00</code>）— Global Control/Status
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-spi" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9. SPI 控制器
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. SPI 控制器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#931-spi_cr1offset-0x00-control-register-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.1 <code>SPI_CR1</code>（Offset <code>0x00</code>）— Control Register 1
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#932-spi_cr2offset-0x04-control-register-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.2 <code>SPI_CR2</code>（Offset <code>0x04</code>）— Control Register 2
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#933-spi_sroffset-0x08-status-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.3 <code>SPI_SR</code>（Offset <code>0x08</code>）— Status Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#934-spi_droffset-0x0c-data-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.4 <code>SPI_DR</code>（Offset <code>0x0C</code>）— Data Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-spi-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10. SPI Flash 互联
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. SPI Flash 互联">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.1 Flash 配置
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.2 支持的 Flash 命令
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.3 Flash 状态寄存器
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.4 典型操作流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../gpu/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_4" id="__nav_4_2_3_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  GPU 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gpu/gpu-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gpu/gpu-datasheet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 硬件手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_3_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../rust/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 实验
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_3_5" id="__nav_4_2_3_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  Rust 实验
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rust/rust-exper-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 实验手册
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rust/rust-lang-manual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 编程指南
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  排行榜
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  排行榜
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  QEMU 训练营 2026
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  QEMU 训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_1" id="__nav_5_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  基础阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  基础阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../leaderboards/2026/basic/c/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  C 语言
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../leaderboards/2026/basic/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_1_2" id="__nav_5_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../leaderboards/2026/professional/cpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../leaderboards/2026/professional/soc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../leaderboards/2026/professional/gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../leaderboards/2026/professional/rust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Rust 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../../../../blogs/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  博客
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6" id="__nav_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  博客
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2" id="__nav_6_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  训练营 2026
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  训练营 2026
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_1" id="__nav_6_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  专业阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-dingtao1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  dingtao1
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_1_2" id="__nav_6_2_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  random25160765-collab
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_2_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  random25160765-collab
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-random25160765-collab/gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-random25160765-collab/gpgpu-advanced-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 进阶实验一
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-ihanzh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  ihanzh
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-srcres258/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  srcres258
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-Codeman-1999/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Codeman-1999
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-kusola/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  kusola
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-flespark-tcg/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  flespark
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_1_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_1_8" id="__nav_6_2_1_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  caspian
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_6_2_1_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_1_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  caspian
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-caspian/cpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  CPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-caspian/soc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  SoC 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-caspian/gpgpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPGPU 方向
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-caspian/gpgpu-advanced-1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 进阶实验一
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-caspian/gpgpu-advanced-2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  GPU 进阶实验二
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-cn-sys/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  cn-sys
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-Kcang-gna/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Kcang-gna
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-lingqian-gi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  lingqian-gi
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-yuanyiboyyb/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  yuanyiboyyb
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-scrail/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  scrail
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-Firegooder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Firegooder
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-liuhong-gpu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  liuhong
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-vsvnakers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  vsvnakers
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-asdfgh870/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  asdfgh870
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-Eclipse-Arrebol/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Eclipse-Arrebol
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-2zuqisong/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2zuqisong
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-Aozaki-aok0/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Aozaki-aok0
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-rhbfc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  rhbfc
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-serf-huik/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  serf-huik
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-jensenojs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  jensenojs
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-dazuo233/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  dazuo233
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-jack-wang-176/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  jack-wang-176
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-eyauwag/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  eyauwag
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-Sunuywq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Sunuywq
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-zhenbaii/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  zhenbaii
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-First-da/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  First-da
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-WhiteBearI/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  WhiteBearI
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-yyxt-xwy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  yyxt-xwy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-xiex386/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  xiex386
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-flamboyante/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  flamboyante
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-dweeqhd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  dweeqhd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-jieniguiemmm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  jieniguiemmm
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/professional/qemu-camp-2026-sutter099/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  sutter099
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_2_2" id="__nav_6_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  项目阶段
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  项目阶段
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2026/project/project-stage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  暂无文章
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_3" id="__nav_6_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  训练营 2025
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  训练营 2025
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/2025/qemu-camp-2025-LordaeronESZ/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  专业阶段总结 LordaeronESZ
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_6_4" id="__nav_6_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  其他技术博客
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  其他技术博客
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/misc/from-a-cmodel-rd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  从 cmodel 说开来 - rd
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/misc/qemu-devel-email/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  参与 QEMU 邮件列表讨论
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/misc/qemu-cnb-dev/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  一键 QEMU 云原生开发
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../blogs/misc/simulater-interp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  虚拟机软件中的解释技术
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  新闻
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  新闻
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_7_1" id="__nav_7_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  2026 年
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_7_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+  2026 年
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../news/2026/qemu-camp-project-stage-2026-07-03/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  07 月 03 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../news/2026/qemu-camp-meetup-2026-04-05/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  04 月 05 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../news/2026/qemu-camp-update-2026-03-17/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  03 月 17 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../news/2026/qemu-camp-meetup-2026-02-28/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  02 月 28 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../news/2026/qemu-camp-update-2026-01-31/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 月 31 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../news/2026/qemu-camp-meetup-2026-01-30/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 月 30 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../../news/2026/qemu-camp-update-2026-01-07/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  01 月 07 日
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  
+                    
+                    
+                    
+                      
+                    
+                    
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
+                  
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        1. 概述
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2. 文档约定
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 文档约定">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.1 数值与端序
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        2.2 术语：未定义 / 实现定义
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3. 系统架构
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 系统架构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3.1 顶层框图（示意）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        3.2 外设互联概要
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4. 地址空间与存储器映射
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 地址空间与存储器映射">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4.1 地址映射总览
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-mmio" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        4.2 MMIO 访问规则（通用）
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5. 处理器与中断子系统
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 处理器与中断子系统">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.1 CPU 概览
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.2 启动与复位
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.3 中断控制器
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-plic" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        5.4 PLIC 中断源编号
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-wdt" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6. 看门狗定时器（WDT）
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 看门狗定时器（WDT）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-wdt_ctrloffset-0x00-control-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.1 <code>WDT_CTRL</code>（Offset <code>0x00</code>）— Control Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-wdt_loadoffset-0x04-load-value-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.2 <code>WDT_LOAD</code>（Offset <code>0x04</code>）— Load Value Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-wdt_valoffset-0x08-current-value-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.3 <code>WDT_VAL</code>（Offset <code>0x08</code>）— Current Value Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-wdt_sroffset-0x0c-status-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.4 <code>WDT_SR</code>（Offset <code>0x0C</code>）— Status Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#635-wdt_keyoffset-0x10-key-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.3.5 <code>WDT_KEY</code>（Offset <code>0x10</code>）— Key Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        6.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-gpio" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7. GPIO 控制器
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. GPIO 控制器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#731-gpio_diroffset-0x00-direction-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.1 <code>GPIO_DIR</code>（Offset <code>0x00</code>）— Direction Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#732-gpio_outoffset-0x04-output-data-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.2 <code>GPIO_OUT</code>（Offset <code>0x04</code>）— Output Data Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#733-gpio_inoffset-0x08-input-data-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.3 <code>GPIO_IN</code>（Offset <code>0x08</code>）— Input Data Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#734-gpio_ieoffset-0x0c-interrupt-enable-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.4 <code>GPIO_IE</code>（Offset <code>0x0C</code>）— Interrupt Enable Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#735-gpio_isoffset-0x10-interrupt-status-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.5 <code>GPIO_IS</code>（Offset <code>0x10</code>）— Interrupt Status Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#736-gpio_trigoffset-0x14-interrupt-trigger-type-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.6 <code>GPIO_TRIG</code>（Offset <code>0x14</code>）— Interrupt Trigger Type Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#737-gpio_poloffset-0x18-interrupt-polarity-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.3.7 <code>GPIO_POL</code>（Offset <code>0x18</code>）— Interrupt Polarity Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        7.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-pwm" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8. PWM 控制器
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. PWM 控制器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#831-pwm_chn_ctrloffset-0x10-n0x10-0x00-channel-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.1 <code>PWM_CHn_CTRL</code>（Offset <code>0x10 + N*0x10 + 0x00</code>）— Channel Control
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#832-pwm_chn_periodoffset-0x10-n0x10-0x04-period-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.2 <code>PWM_CHn_PERIOD</code>（Offset <code>0x10 + N*0x10 + 0x04</code>）— Period Value
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#833-pwm_chn_dutyoffset-0x10-n0x10-0x08-duty-cycle-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.3 <code>PWM_CHn_DUTY</code>（Offset <code>0x10 + N*0x10 + 0x08</code>）— Duty Cycle Value
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#834-pwm_chn_cntoffset-0x10-n0x10-0x0c-current-counter" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.4 <code>PWM_CHn_CNT</code>（Offset <code>0x10 + N*0x10 + 0x0C</code>）— Current Counter
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#835-pwm_glboffset-0x00-global-controlstatus" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.3.5 <code>PWM_GLB</code>（Offset <code>0x00</code>）— Global Control/Status
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        8.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-spi" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9. SPI 控制器
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. SPI 控制器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.1 功能特性
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.2 寄存器映射
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#93" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3 寄存器定义
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9.3 寄存器定义">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#931-spi_cr1offset-0x00-control-register-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.1 <code>SPI_CR1</code>（Offset <code>0x00</code>）— Control Register 1
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#932-spi_cr2offset-0x04-control-register-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.2 <code>SPI_CR2</code>（Offset <code>0x04</code>）— Control Register 2
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#933-spi_sroffset-0x08-status-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.3 <code>SPI_SR</code>（Offset <code>0x08</code>）— Status Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#934-spi_droffset-0x0c-data-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.3.4 <code>SPI_DR</code>（Offset <code>0x0C</code>）— Data Register
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#94" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        9.4 编程模型
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-spi-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10. SPI Flash 互联
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. SPI Flash 互联">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.1 Flash 配置
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.2 支持的 Flash 命令
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-flash" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.3 Flash 状态寄存器
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#104" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        10.4 典型操作流程
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+  
+  
+
+
+<h1 id="g233-soc">G233 SoC 硬件手册（教学版）<a class="headerlink" href="#g233-soc" title="Permanent link">&para;</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">免责声明</p>
+<p>本手册描述的是用于 QEMU 训练营的 <strong>教学用虚拟 SoC/板卡（G233）</strong> 的规格与编程模型，并不对应任何实体芯片。
+训练营可能在不另行通知的情况下调整实现细节；若手册与实际实现不一致，以测题/参考实现为准。</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">主要贡献者</p>
+<ul>
+<li>维护：<a href="https://github.com/zevorn">@zevorn</a></li>
+</ul>
+</div>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标读者</td>
+<td>训练营学员、平台建模/驱动开发人员</td>
+</tr>
+<tr>
+<td>适用范围</td>
+<td><code>docs/exercise/2026/stage1/soc/</code>（SoC 方向）</td>
+</tr>
+<tr>
+<td>文档状态</td>
+<td>Draft</td>
+</tr>
+<tr>
+<td>最后更新</td>
+<td>2026-04-08</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1">1. 概述<a class="headerlink" href="#1" title="Permanent link">&para;</a></h2>
+<p>G233 是为 QEMU 训练营定制的虚拟 SoC/板卡。其设计目标是提供一个<strong>足够小但覆盖关键子系统</strong>的硬件抽象，用于：</p>
+<ul>
+<li>板级/SoC 设备建模（MMIO、IRQ、总线、设备实例化与连接）</li>
+<li>通用外设建模（GPIO、PWM、WDT）</li>
+<li>SPI 外设建模与存储器件互联（SSI、Flash、片选、中断）</li>
+</ul>
+<p>本手册重点描述 <strong>内存映射、外设寄存器定义、中断互联以及编程模型</strong>。</p>
+<h2 id="2">2. 文档约定<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 数值与端序<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<ul>
+<li>除非特别说明，所有数值均为十六进制，形如 <code>0x1001_8000</code>（下划线仅用于分组）。</li>
+<li>地址均为 <strong>字节地址（byte addressable）</strong>。</li>
+<li>所有多字节寄存器访问均按 <strong>小端序（little-endian）</strong> 解释。</li>
+</ul>
+<h3 id="22">2.2 术语：未定义 / 实现定义<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>未定义（undefined）</strong>：实现可以产生任意结果（包括但不限于异常/死循环/数据破坏）；软件不得依赖其行为。</li>
+<li><strong>实现定义（implementation-defined）</strong>：实现必须在某处（手册或实现文档）给出选择；若未给出，软件仍不得依赖。</li>
+</ul>
+<p>本手册对一些非关键细节会采用"实现定义/未定义"以避免与训练营实现细节冲突。</p>
+<h2 id="3">3. 系统架构<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 顶层框图（示意）<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>+------------------------------------------------------------------------------+
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>|                       G233 Board Architecture Diagram                        |
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>|                                                                              |
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>|  +-----------------+       +--------------------+       +-----------------+  |
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>|  |       DRAM      | &lt;---&gt; |   riscv.g233.cpu   | &lt;---&gt; |       MROM      |  |
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>|  |   0x8000_0000   |       | - RVA23            |       |   0x0000_1000   |  |
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>|  |   0xBFFF_FFFF   |       | - Xg233ai          |       |   0x0000_2FFF   |  |
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>|  +-----------------+       +----------+---------+       +-----------------+  |
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>|                                       |                                      |
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>|               +-----------+-----------+-----------+-----------+              |
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>|               |           |           |           |           |              |
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>|       +-------v---+  +----v----+  +---v-----+  +-v-------+  +v----------+   |
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>|       |   PLIC    |  |  ACLINT |  |  PL011  |  |   WDT   |  |   GPIO    |   |
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>|       | 0x0C00_.. |  | 0x0200_ |  | 0x1000_ |  | 0x1001_ |  | 0x1001_   |   |
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>|       | 0x0FFF_.. |  | 0x0200_ |  | 0x1000_ |  | 0x1001_ |  | 0x1001_   |   |
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>|       +-----+-----+  +---------+  +---------+  +---------+  +-----------+   |
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>|             |                                                                |
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>|       +-----+-----+-----+-----+                                             |
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>|       |           |           |                                              |
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>|   +---v---+   +---v---+   +--v----+   +---v----+   +---v----+               |
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>|   |  PWM  |   |  SPI  |   | Flash |   | Flash  |   | Flash  |               |
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>|   | 0x..5 |   | 0x..8 |   | CS0   |   | CS1    |   | (opt)  |               |
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>|   +-------+   +---+---+   +-------+   +--------+   +--------+               |
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>|                   |            |            |                                 |
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>|                   +------SSI Bus-----------+                                 |
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>|                                                                              |
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>|                              Bus Fabric / AXI                                |
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>+------------------------------------------------------------------------------+
+</code></pre></div>
+<h3 id="32">3.2 外设互联概要<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>外设</th>
+<th>连接关系</th>
+<th>PLIC IRQ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PL011 UART</td>
+<td>CPU ↔ MMIO</td>
+<td>1</td>
+</tr>
+<tr>
+<td>GPIO</td>
+<td>CPU ↔ MMIO，32 路引脚</td>
+<td>2</td>
+</tr>
+<tr>
+<td>PWM</td>
+<td>CPU ↔ MMIO，4 通道输出</td>
+<td>3</td>
+</tr>
+<tr>
+<td>WDT</td>
+<td>CPU ↔ MMIO，超时产生中断/复位</td>
+<td>4</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td>CPU ↔ MMIO ↔ SSI 总线 ↔ Flash</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4">4. 地址空间与存储器映射<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
+<h3 id="41">4.1 地址映射总览<a class="headerlink" href="#41" title="Permanent link">&para;</a></h3>
+<p>下表给出 G233 低地址空间（低 32 位）内的主要映射。未列出的地址范围为 <strong>实现定义</strong>（可能返回 0、产生总线错误或触发访存异常）。</p>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>Base</th>
+<th>End</th>
+<th>Size</th>
+<th>访问属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MROM</td>
+<td><code>0x0000_1000</code></td>
+<td><code>0x0000_2FFF</code></td>
+<td>8 KiB</td>
+<td>R-X</td>
+<td>启动只读存储区（Boot ROM）</td>
+</tr>
+<tr>
+<td>ACLINT (MSWI)</td>
+<td><code>0x0200_0000</code></td>
+<td><code>0x0200_3FFF</code></td>
+<td>16 KiB</td>
+<td>R/W</td>
+<td>软件中断（Machine SW Interrupt）</td>
+</tr>
+<tr>
+<td>ACLINT (MTIME/MTIMECMP)</td>
+<td><code>0x0200_4000</code></td>
+<td><code>0x0200_BFFF</code></td>
+<td>32 KiB</td>
+<td>R/W</td>
+<td>机器定时器（Machine Timer）</td>
+</tr>
+<tr>
+<td>PLIC</td>
+<td><code>0x0C00_0000</code></td>
+<td><code>0x0FFF_FFFF</code></td>
+<td>64 MiB</td>
+<td>R/W</td>
+<td>外部中断控制器（PLIC）</td>
+</tr>
+<tr>
+<td>PL011 UART</td>
+<td><code>0x1000_0000</code></td>
+<td><code>0x1000_0FFF</code></td>
+<td>4 KiB</td>
+<td>R/W</td>
+<td>串口控制器（PL011 兼容）</td>
+</tr>
+<tr>
+<td>WDT</td>
+<td><code>0x1001_0000</code></td>
+<td><code>0x1001_0FFF</code></td>
+<td>4 KiB</td>
+<td>R/W</td>
+<td>看门狗定时器（见第 6 章）</td>
+</tr>
+<tr>
+<td>GPIO</td>
+<td><code>0x1001_2000</code></td>
+<td><code>0x1001_20FF</code></td>
+<td>256 B</td>
+<td>R/W</td>
+<td>通用 GPIO（见第 7 章）</td>
+</tr>
+<tr>
+<td>PWM</td>
+<td><code>0x1001_5000</code></td>
+<td><code>0x1001_5FFF</code></td>
+<td>4 KiB</td>
+<td>R/W</td>
+<td>PWM 控制器（见第 8 章）</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td><code>0x1001_8000</code></td>
+<td><code>0x1001_8FFF</code></td>
+<td>4 KiB</td>
+<td>R/W</td>
+<td>SPI 控制器（见第 9 章）</td>
+</tr>
+<tr>
+<td>DRAM</td>
+<td><code>0x8000_0000</code></td>
+<td><code>0xBFFF_FFFF</code></td>
+<td>1 GiB</td>
+<td>R/W/X</td>
+<td>主内存</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-mmio">4.2 MMIO 访问规则（通用）<a class="headerlink" href="#42-mmio" title="Permanent link">&para;</a></h3>
+<ul>
+<li>除非章节另行说明，MMIO 寄存器按 <strong>32-bit</strong> 对齐访问；非对齐访问的行为为 <strong>实现定义</strong>。</li>
+<li>对寄存器中标记为 <strong>保留（Reserved）</strong> 的位：软件 <strong>必须写 0</strong>，读出值为 <strong>实现定义</strong>。</li>
+<li>同一寄存器的并发访问、以及设备内部状态机的精确定序为 <strong>实现定义</strong>（建议驱动使用轮询/中断配合，并做好超时保护）。</li>
+</ul>
+<h2 id="5">5. 处理器与中断子系统<a class="headerlink" href="#5" title="Permanent link">&para;</a></h2>
+<h3 id="51-cpu">5.1 CPU 概览<a class="headerlink" href="#51-cpu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>处理器核名称</td>
+<td><code>riscv.g233.cpu</code></td>
+</tr>
+<tr>
+<td>ISA</td>
+<td>RV64GC (RVA23) + Xg233ai</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>RVA23 的完整扩展集合与 CSR 行为，以训练营给出的 QEMU 配置与实现为准。自定义指令扩展 Xg233ai 见 <a href="../../cpu/cpu-datasheet/">G233 CPU 指令扩展手册</a>。</p>
+</div>
+<h3 id="52">5.2 启动与复位<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<ul>
+<li>复位后 CPU 从 MROM 区域取指执行（具体入口地址由平台配置/固件决定）。</li>
+<li>MROM 内容通常用于最小初始化并跳转到 DRAM 中的后续代码。</li>
+</ul>
+<h3 id="53">5.3 中断控制器<a class="headerlink" href="#53" title="Permanent link">&para;</a></h3>
+<p><strong>ACLINT</strong>：提供软件中断（MSWI）与机器定时器（MTIME/MTIMECMP），用于 M-mode 的 <code>MSIP/MTIP</code> 等本地中断源。</p>
+<p><strong>PLIC</strong>：聚合板级外设的外部中断源，并向 CPU 递交外部中断（MEIP）。</p>
+<div class="admonition warning">
+<p class="admonition-title">PLIC pending 位清除机制</p>
+<p>PLIC 遵循 RISC-V PLIC 规范，pending 位<strong>一旦置位即为粘性（sticky）</strong>——拉低中断源线路（例如清除 GPIO_IS 对应位）<strong>不会</strong>自动清除 PLIC 的 pending 位。软件必须通过以下 claim/complete 流程清除：</p>
+<ol>
+<li><strong>Claim</strong>：读 <code>context + 0x4</code>（claim/complete 寄存器），PLIC 返回当前最高优先级的 pending IRQ 号，并原子性地清除其 pending 位。</li>
+<li><strong>Complete</strong>：向同一地址写回该 IRQ 号，允许 PLIC 后续再次接受该源的中断。</li>
+</ol>
+</div>
+<h3 id="54-plic">5.4 PLIC 中断源编号<a class="headerlink" href="#54-plic" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>IRQ</th>
+<th>来源</th>
+<th>触发方式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>PL011 UART</td>
+<td>电平</td>
+<td>串口收发中断</td>
+</tr>
+<tr>
+<td>2</td>
+<td>GPIO</td>
+<td>电平</td>
+<td>引脚中断（由 GPIO_IS 汇聚）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>PWM</td>
+<td>电平</td>
+<td>周期完成中断</td>
+</tr>
+<tr>
+<td>4</td>
+<td>WDT</td>
+<td>电平</td>
+<td>看门狗超时中断</td>
+</tr>
+<tr>
+<td>5</td>
+<td>SPI</td>
+<td>电平</td>
+<td>SPI TXE/RXNE/错误中断</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>IRQ 0 保留不使用。各中断的优先级与使能配置通过 PLIC 寄存器完成（PLIC 编程模型遵循 RISC-V PLIC 规范，本手册不再重复）。</p>
+</div>
+<h2 id="6-wdt">6. 看门狗定时器（WDT）<a class="headerlink" href="#6-wdt" title="Permanent link">&para;</a></h2>
+<p>WDT (Watchdog Timer) 提供系统级超时保护，软件需在倒计时归零前周期性"喂狗"以防止系统复位或触发中断。</p>
+<h3 id="61">6.1 功能特性<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<ul>
+<li>32 位递减计数器</li>
+<li>可配置超时时间（通过装载值）</li>
+<li>超时可产生中断或系统复位（由控制位选择）</li>
+<li>喂狗操作需写入特定密钥值</li>
+<li>锁定机制：写入锁定密钥后，控制寄存器变为只读</li>
+</ul>
+<h3 id="62">6.2 寄存器映射<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<p>WDT 基地址：<code>0x1001_0000</code>。</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>寄存器</th>
+<th>访问</th>
+<th>复位值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x00</code></td>
+<td><code>WDT_CTRL</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>控制寄存器</td>
+</tr>
+<tr>
+<td><code>0x04</code></td>
+<td><code>WDT_LOAD</code></td>
+<td>R/W</td>
+<td><code>0x0000_FFFF</code></td>
+<td>装载值寄存器</td>
+</tr>
+<tr>
+<td><code>0x08</code></td>
+<td><code>WDT_VAL</code></td>
+<td>R</td>
+<td><code>0x0000_FFFF</code></td>
+<td>当前计数值（只读）</td>
+</tr>
+<tr>
+<td><code>0x0C</code></td>
+<td><code>WDT_SR</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>状态寄存器</td>
+</tr>
+<tr>
+<td><code>0x10</code></td>
+<td><code>WDT_KEY</code></td>
+<td>W</td>
+<td>—</td>
+<td>密钥寄存器（只写）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63">6.3 寄存器定义<a class="headerlink" href="#63" title="Permanent link">&para;</a></h3>
+<h4 id="631-wdt_ctrloffset-0x00-control-register">6.3.1 <code>WDT_CTRL</code>（Offset <code>0x00</code>）— Control Register<a class="headerlink" href="#631-wdt_ctrloffset-0x00-control-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:4</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位，必须保持为 0</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td><code>LOCK</code></td>
+<td>R</td>
+<td><code>0</code></td>
+<td>锁定状态：<code>1</code> 表示已锁定（只读）</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>RSTEN</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>超时复位使能：<code>0</code> 禁用；<code>1</code> 超时时产生系统复位</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>INTEN</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>超时中断使能：<code>0</code> 禁用；<code>1</code> 超时时向 PLIC 发起中断</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>EN</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>WDT 使能：<code>0</code> 停止计数；<code>1</code> 开始倒计时</td>
+</tr>
+</tbody>
+</table>
+<h4 id="632-wdt_loadoffset-0x04-load-value-register">6.3.2 <code>WDT_LOAD</code>（Offset <code>0x04</code>）— Load Value Register<a class="headerlink" href="#632-wdt_loadoffset-0x04-load-value-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:0</code></td>
+<td><code>LOAD</code></td>
+<td>R/W</td>
+<td><code>0x0000_FFFF</code></td>
+<td>装载值：喂狗时计数器重置为此值</td>
+</tr>
+</tbody>
+</table>
+<h4 id="633-wdt_valoffset-0x08-current-value-register">6.3.3 <code>WDT_VAL</code>（Offset <code>0x08</code>）— Current Value Register<a class="headerlink" href="#633-wdt_valoffset-0x08-current-value-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:0</code></td>
+<td><code>VAL</code></td>
+<td>R</td>
+<td><code>0x0000_FFFF</code></td>
+<td>当前倒计时值（只读）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="634-wdt_sroffset-0x0c-status-register">6.3.4 <code>WDT_SR</code>（Offset <code>0x0C</code>）— Status Register<a class="headerlink" href="#634-wdt_sroffset-0x0c-status-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:1</code></td>
+<td>Reserved</td>
+<td>R</td>
+<td><code>0</code></td>
+<td>保留位</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>TIMEOUT</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>超时标志：<code>1</code> 表示计数器已归零；写 <code>1</code> 清除</td>
+</tr>
+</tbody>
+</table>
+<h4 id="635-wdt_keyoffset-0x10-key-register">6.3.5 <code>WDT_KEY</code>（Offset <code>0x10</code>）— Key Register<a class="headerlink" href="#635-wdt_keyoffset-0x10-key-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:0</code></td>
+<td><code>KEY</code></td>
+<td>W</td>
+<td>—</td>
+<td>密钥值（只写，读返回 0）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>密钥值定义</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>密钥值</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x5A5A_5A5A</code></td>
+<td><strong>喂狗</strong>：将 <code>WDT_LOAD</code> 的值重新装载到计数器，同时清除 <code>TIMEOUT</code> 标志</td>
+</tr>
+<tr>
+<td><code>0x1ACC_E551</code></td>
+<td><strong>锁定</strong>：将 <code>WDT_CTRL</code> 锁定为只读（<code>LOCK</code> 位置 1），直到下次复位</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>写入其他值到 <code>WDT_KEY</code> 的行为为 <strong>未定义</strong>。</p>
+</div>
+<h3 id="64">6.4 编程模型<a class="headerlink" href="#64" title="Permanent link">&para;</a></h3>
+<ol>
+<li>配置 <code>WDT_LOAD</code> 设定超时装载值。</li>
+<li>配置 <code>WDT_CTRL</code>：设置 <code>INTEN</code>（中断）或 <code>RSTEN</code>（复位），置位 <code>EN</code> 启动计数。</li>
+<li>软件周期性向 <code>WDT_KEY</code> 写入 <code>0x5A5A_5A5A</code> 喂狗。</li>
+<li>若需锁定配置（防止误改），向 <code>WDT_KEY</code> 写入 <code>0x1ACC_E551</code>。</li>
+<li>超时检测：轮询 <code>WDT_SR.TIMEOUT</code> 或通过 PLIC 中断响应。</li>
+</ol>
+<h2 id="7-gpio">7. GPIO 控制器<a class="headerlink" href="#7-gpio" title="Permanent link">&para;</a></h2>
+<p>GPIO (General-Purpose Input/Output) 提供 32 路通用数字引脚，每路可独立配置方向、输出电平、以及中断触发条件。</p>
+<h3 id="71">7.1 功能特性<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<ul>
+<li>32 路独立引脚（GPIO[31:0]）</li>
+<li>每路可配置为输入或输出</li>
+<li>输出电平可独立控制</li>
+<li>每路引脚可独立使能中断</li>
+<li>中断触发方式可配置：电平触发或边沿触发</li>
+<li>中断极性可配置：高电平/上升沿 或 低电平/下降沿</li>
+</ul>
+<h3 id="72">7.2 寄存器映射<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<p>GPIO 基地址：<code>0x1001_2000</code>。</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>寄存器</th>
+<th>访问</th>
+<th>复位值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x00</code></td>
+<td><code>GPIO_DIR</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>方向寄存器</td>
+</tr>
+<tr>
+<td><code>0x04</code></td>
+<td><code>GPIO_OUT</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>输出数据寄存器</td>
+</tr>
+<tr>
+<td><code>0x08</code></td>
+<td><code>GPIO_IN</code></td>
+<td>R</td>
+<td><code>0x0000_0000</code></td>
+<td>输入数据寄存器</td>
+</tr>
+<tr>
+<td><code>0x0C</code></td>
+<td><code>GPIO_IE</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>中断使能寄存器</td>
+</tr>
+<tr>
+<td><code>0x10</code></td>
+<td><code>GPIO_IS</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>中断状态寄存器</td>
+</tr>
+<tr>
+<td><code>0x14</code></td>
+<td><code>GPIO_TRIG</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>中断触发类型寄存器</td>
+</tr>
+<tr>
+<td><code>0x18</code></td>
+<td><code>GPIO_POL</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>中断极性寄存器</td>
+</tr>
+</tbody>
+</table>
+<h3 id="73">7.3 寄存器定义<a class="headerlink" href="#73" title="Permanent link">&para;</a></h3>
+<p>以下寄存器均为 32 位宽，每一位对应一路 GPIO 引脚（bit N 对应 GPIO[N]）。</p>
+<h4 id="731-gpio_diroffset-0x00-direction-register">7.3.1 <code>GPIO_DIR</code>（Offset <code>0x00</code>）— Direction Register<a class="headerlink" href="#731-gpio_diroffset-0x00-direction-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td>GPIO[N] 方向：<code>0</code> 输入；<code>1</code> 输出</td>
+</tr>
+</tbody>
+</table>
+<h4 id="732-gpio_outoffset-0x04-output-data-register">7.3.2 <code>GPIO_OUT</code>（Offset <code>0x04</code>）— Output Data Register<a class="headerlink" href="#732-gpio_outoffset-0x04-output-data-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td>GPIO[N] 输出电平：<code>0</code> 低电平；<code>1</code> 高电平。仅当 <code>GPIO_DIR[N] = 1</code> 时有效</td>
+</tr>
+</tbody>
+</table>
+<h4 id="733-gpio_inoffset-0x08-input-data-register">7.3.3 <code>GPIO_IN</code>（Offset <code>0x08</code>）— Input Data Register<a class="headerlink" href="#733-gpio_inoffset-0x08-input-data-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td>GPIO[N] 当前引脚电平（只读）。输出模式下读回输出锁存值</td>
+</tr>
+</tbody>
+</table>
+<h4 id="734-gpio_ieoffset-0x0c-interrupt-enable-register">7.3.4 <code>GPIO_IE</code>（Offset <code>0x0C</code>）— Interrupt Enable Register<a class="headerlink" href="#734-gpio_ieoffset-0x0c-interrupt-enable-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td>GPIO[N] 中断使能：<code>0</code> 禁用；<code>1</code> 使能</td>
+</tr>
+</tbody>
+</table>
+<h4 id="735-gpio_isoffset-0x10-interrupt-status-register">7.3.5 <code>GPIO_IS</code>（Offset <code>0x10</code>）— Interrupt Status Register<a class="headerlink" href="#735-gpio_isoffset-0x10-interrupt-status-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td>GPIO[N] 中断挂起：<code>1</code> 表示触发条件成立；写 <code>1</code> 清除</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>所有引脚的中断状态通过按位 OR 汇聚为一个 PLIC 中断源（IRQ 2）。软件需读 <code>GPIO_IS</code> 判断具体是哪些引脚触发。</p>
+</div>
+<h4 id="736-gpio_trigoffset-0x14-interrupt-trigger-type-register">7.3.6 <code>GPIO_TRIG</code>（Offset <code>0x14</code>）— Interrupt Trigger Type Register<a class="headerlink" href="#736-gpio_trigoffset-0x14-interrupt-trigger-type-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td>GPIO[N] 触发类型：<code>0</code> 边沿触发；<code>1</code> 电平触发</td>
+</tr>
+</tbody>
+</table>
+<h4 id="737-gpio_poloffset-0x18-interrupt-polarity-register">7.3.7 <code>GPIO_POL</code>（Offset <code>0x18</code>）— Interrupt Polarity Register<a class="headerlink" href="#737-gpio_poloffset-0x18-interrupt-polarity-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>N</code></td>
+<td>GPIO[N] 中断极性：<code>0</code> 低电平/下降沿；<code>1</code> 高电平/上升沿</td>
+</tr>
+</tbody>
+</table>
+<h3 id="74">7.4 编程模型<a class="headerlink" href="#74" title="Permanent link">&para;</a></h3>
+<p><strong>输出控制</strong>：</p>
+<ol>
+<li>设置 <code>GPIO_DIR[N] = 1</code>（输出模式）。</li>
+<li>写 <code>GPIO_OUT[N]</code> 控制引脚电平。</li>
+</ol>
+<p><strong>输入读取</strong>：</p>
+<ol>
+<li>设置 <code>GPIO_DIR[N] = 0</code>（输入模式）。</li>
+<li>读 <code>GPIO_IN[N]</code> 获取当前引脚电平。</li>
+</ol>
+<p><strong>中断配置</strong>：</p>
+<ol>
+<li>配置 <code>GPIO_TRIG[N]</code> 选择触发类型（<code>0</code> 边沿、<code>1</code> 电平）。</li>
+<li>配置 <code>GPIO_POL[N]</code> 选择触发极性（<code>0</code> 低/下降、<code>1</code> 高/上升）。</li>
+<li>置位 <code>GPIO_IE[N]</code> 使能中断。</li>
+<li>中断发生后，读 <code>GPIO_IS</code> 确认触发引脚，向对应位写 <code>1</code> 清除 GPIO 侧中断标志。</li>
+<li>注意：当 <code>GPIO_TRIG[N]</code> 选择电平触发时，向 <code>GPIO_OUT[N]</code> 写入 <code>~GPIO_POL[N]</code> 后，GPIO 应当清空对应的 <code>GPIO_IS[N]</code> 状态位。</li>
+<li>注意：清除 <code>GPIO_IS</code> 不会自动清除 PLIC 侧的 pending 位。软件还需在 PLIC 侧执行 claim/complete 流程（见 §5.3）以清除对应 IRQ 的 pending。</li>
+</ol>
+<h2 id="8-pwm">8. PWM 控制器<a class="headerlink" href="#8-pwm" title="Permanent link">&para;</a></h2>
+<p>PWM (Pulse Width Modulation) 控制器提供 4 路独立 PWM 输出通道，每路可独立配置周期、占空比和极性。</p>
+<h3 id="81">8.1 功能特性<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<ul>
+<li>4 路独立通道（CH0~CH3）</li>
+<li>32 位周期计数器</li>
+<li>32 位占空比计数器</li>
+<li>每通道可独立使能/禁用</li>
+<li>输出极性可配置</li>
+<li>周期完成中断</li>
+</ul>
+<h3 id="82">8.2 寄存器映射<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<p>PWM 基地址：<code>0x1001_5000</code>。全局寄存器位于偏移 <code>0x00</code>；每通道占用 <code>0x10</code> 字节（4 个寄存器），通道 N 基偏移为 <code>0x10 + N * 0x10</code>。</p>
+<p><strong>全局寄存器</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>寄存器</th>
+<th>访问</th>
+<th>复位值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x00</code></td>
+<td><code>PWM_GLB</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>全局控制/状态寄存器</td>
+</tr>
+</tbody>
+</table>
+<p><strong>通道寄存器</strong>（通道 N，偏移基址 = <code>0x10 + N * 0x10</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>寄存器</th>
+<th>访问</th>
+<th>复位值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x10 + N*0x10 + 0x00</code></td>
+<td><code>PWM_CHn_CTRL</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>通道控制寄存器</td>
+</tr>
+<tr>
+<td><code>0x10 + N*0x10 + 0x04</code></td>
+<td><code>PWM_CHn_PERIOD</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>周期值寄存器</td>
+</tr>
+<tr>
+<td><code>0x10 + N*0x10 + 0x08</code></td>
+<td><code>PWM_CHn_DUTY</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>占空比值寄存器</td>
+</tr>
+<tr>
+<td><code>0x10 + N*0x10 + 0x0C</code></td>
+<td><code>PWM_CHn_CNT</code></td>
+<td>R</td>
+<td><code>0x0000_0000</code></td>
+<td>当前计数值（只读）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83">8.3 寄存器定义<a class="headerlink" href="#83" title="Permanent link">&para;</a></h3>
+<h4 id="831-pwm_chn_ctrloffset-0x10-n0x10-0x00-channel-control">8.3.1 <code>PWM_CHn_CTRL</code>（Offset <code>0x10 + N*0x10 + 0x00</code>）— Channel Control<a class="headerlink" href="#831-pwm_chn_ctrloffset-0x10-n0x10-0x00-channel-control" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:3</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位，必须保持为 0</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>INTIE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>周期完成中断使能：<code>0</code> 禁用；<code>1</code> 使能</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>POL</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>输出极性：<code>0</code> 默认高电平有效；<code>1</code> 反相</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>EN</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>通道使能：<code>0</code> 停止；<code>1</code> 启动</td>
+</tr>
+</tbody>
+</table>
+<h4 id="832-pwm_chn_periodoffset-0x10-n0x10-0x04-period-value">8.3.2 <code>PWM_CHn_PERIOD</code>（Offset <code>0x10 + N*0x10 + 0x04</code>）— Period Value<a class="headerlink" href="#832-pwm_chn_periodoffset-0x10-n0x10-0x04-period-value" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:0</code></td>
+<td><code>PERIOD</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>周期值：计数器从 0 计数到 PERIOD 后归零重载</td>
+</tr>
+</tbody>
+</table>
+<h4 id="833-pwm_chn_dutyoffset-0x10-n0x10-0x08-duty-cycle-value">8.3.3 <code>PWM_CHn_DUTY</code>（Offset <code>0x10 + N*0x10 + 0x08</code>）— Duty Cycle Value<a class="headerlink" href="#833-pwm_chn_dutyoffset-0x10-n0x10-0x08-duty-cycle-value" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:0</code></td>
+<td><code>DUTY</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>占空比值：计数器 &lt; DUTY 时输出高电平，&gt;= DUTY 时输出低电平</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>DUTY</code> 必须 &lt;= <code>PERIOD</code>。当 <code>DUTY &gt; PERIOD</code> 时，输出行为为 <strong>实现定义</strong>。</p>
+</div>
+<h4 id="834-pwm_chn_cntoffset-0x10-n0x10-0x0c-current-counter">8.3.4 <code>PWM_CHn_CNT</code>（Offset <code>0x10 + N*0x10 + 0x0C</code>）— Current Counter<a class="headerlink" href="#834-pwm_chn_cntoffset-0x10-n0x10-0x0c-current-counter" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:0</code></td>
+<td><code>CNT</code></td>
+<td>R</td>
+<td><code>0</code></td>
+<td>当前计数值（只读）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="835-pwm_glboffset-0x00-global-controlstatus">8.3.5 <code>PWM_GLB</code>（Offset <code>0x00</code>）— Global Control/Status<a class="headerlink" href="#835-pwm_glboffset-0x00-global-controlstatus" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:8</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位</td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td><code>CH3_DONE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>CH3 周期完成标志；写 <code>1</code> 清除</td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td><code>CH2_DONE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>CH2 周期完成标志；写 <code>1</code> 清除</td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td><code>CH1_DONE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>CH1 周期完成标志；写 <code>1</code> 清除</td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td><code>CH0_DONE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>CH0 周期完成标志；写 <code>1</code> 清除</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td><code>CH3_EN</code></td>
+<td>R</td>
+<td><code>0</code></td>
+<td>CH3 运行状态（只读镜像）</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>CH2_EN</code></td>
+<td>R</td>
+<td><code>0</code></td>
+<td>CH2 运行状态（只读镜像）</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>CH1_EN</code></td>
+<td>R</td>
+<td><code>0</code></td>
+<td>CH1 运行状态（只读镜像）</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>CH0_EN</code></td>
+<td>R</td>
+<td><code>0</code></td>
+<td>CH0 运行状态（只读镜像）</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>各通道的 DONE 标志通过按位 OR 汇聚为一个 PLIC 中断源（IRQ 3）。软件需读 <code>PWM_GLB</code> 判断具体是哪些通道完成。</p>
+</div>
+<h3 id="84">8.4 编程模型<a class="headerlink" href="#84" title="Permanent link">&para;</a></h3>
+<ol>
+<li>配置通道周期：写 <code>PWM_CHn_PERIOD</code>。</li>
+<li>配置占空比：写 <code>PWM_CHn_DUTY</code>（值须 &lt;= PERIOD）。</li>
+<li>按需配置极性与中断：写 <code>PWM_CHn_CTRL</code>（<code>POL</code>、<code>INTIE</code>）。</li>
+<li>启动通道：置位 <code>PWM_CHn_CTRL.EN</code>。</li>
+<li>周期完成中断处理：读 <code>PWM_GLB</code> 确认哪些通道完成，向对应 DONE 位写 <code>1</code> 清除。</li>
+</ol>
+<h2 id="9-spi">9. SPI 控制器<a class="headerlink" href="#9-spi" title="Permanent link">&para;</a></h2>
+<p>SPI (Serial Peripheral Interface) 控制器提供全双工同步串行通信能力，可用于连接外部传感器、存储器件（Flash）等。</p>
+<h3 id="91">9.1 功能特性<a class="headerlink" href="#91" title="Permanent link">&para;</a></h3>
+<ul>
+<li>主/从模式（通过寄存器选择，具体互联由平台决定）</li>
+<li>全双工同步传输</li>
+<li>8-bit 数据位宽</li>
+<li>4 路片选信号（CS0~CS3），通过 <code>SPI_CR2</code> 低 2 位选择当前激活的 CS</li>
+<li>中断：TXE、RXNE、错误（溢出 OVERRUN）</li>
+</ul>
+<h3 id="92">9.2 寄存器映射<a class="headerlink" href="#92" title="Permanent link">&para;</a></h3>
+<p>SPI 基地址：<code>0x1001_8000</code>。</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>寄存器</th>
+<th>访问</th>
+<th>复位值</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x00</code></td>
+<td><code>SPI_CR1</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>控制寄存器 1（使能/主从/中断使能）</td>
+</tr>
+<tr>
+<td><code>0x04</code></td>
+<td><code>SPI_CR2</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>控制寄存器 2（片选选择）</td>
+</tr>
+<tr>
+<td><code>0x08</code></td>
+<td><code>SPI_SR</code></td>
+<td>R/W</td>
+<td><code>0x0000_0002</code></td>
+<td>状态寄存器</td>
+</tr>
+<tr>
+<td><code>0x0C</code></td>
+<td><code>SPI_DR</code></td>
+<td>R/W</td>
+<td><code>0x0000_0000</code></td>
+<td>数据寄存器</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>SPI 控制器不使用独立的片选控制寄存器，片选选择合并到 <code>SPI_CR2[1:0]</code>。</p>
+</div>
+<h3 id="93">9.3 寄存器定义<a class="headerlink" href="#93" title="Permanent link">&para;</a></h3>
+<h4 id="931-spi_cr1offset-0x00-control-register-1">9.3.1 <code>SPI_CR1</code>（Offset <code>0x00</code>）— Control Register 1<a class="headerlink" href="#931-spi_cr1offset-0x00-control-register-1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:8</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位，必须保持为 0</td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td><code>TXEIE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>TXE 中断使能：<code>0</code> 禁用；<code>1</code> 使能</td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td><code>RXNEIE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>RXNE 中断使能：<code>0</code> 禁用；<code>1</code> 使能</td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td><code>ERRIE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>错误中断使能（OVERRUN）：<code>0</code> 禁用；<code>1</code> 使能</td>
+</tr>
+<tr>
+<td><code>4:3</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位，必须保持为 0</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td><code>MSTR</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>主从选择：<code>0</code> 从模式；<code>1</code> 主模式</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位，必须保持为 0</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>SPE</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>SPI 使能：<code>0</code> 禁用；<code>1</code> 使能</td>
+</tr>
+</tbody>
+</table>
+<h4 id="932-spi_cr2offset-0x04-control-register-2">9.3.2 <code>SPI_CR2</code>（Offset <code>0x04</code>）— Control Register 2<a class="headerlink" href="#932-spi_cr2offset-0x04-control-register-2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:2</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位，必须保持为 0</td>
+</tr>
+<tr>
+<td><code>1:0</code></td>
+<td><code>CS_SEL</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>片选选择：<code>0</code> CS0；<code>1</code> CS1；<code>2</code> CS2；<code>3</code> CS3</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>写 <code>SPI_CR2[1:0]</code> 选择当前激活的片选通道；切换 CS 时控制器应自动释放之前的 CS 并激活新的 CS。CS 的实际有效电平与时序为实现定义。</p>
+</div>
+<h4 id="933-spi_sroffset-0x08-status-register">9.3.3 <code>SPI_SR</code>（Offset <code>0x08</code>）— Status Register<a class="headerlink" href="#933-spi_sroffset-0x08-status-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:5</code></td>
+<td>Reserved</td>
+<td>R</td>
+<td><code>0</code></td>
+<td>保留位</td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td><code>OVERRUN</code></td>
+<td>R/W1C</td>
+<td><code>0</code></td>
+<td>溢出错误：<code>RXNE=1</code> 时又收到新字节则置 1；写 1 清除</td>
+</tr>
+<tr>
+<td><code>3:2</code></td>
+<td>Reserved</td>
+<td>R</td>
+<td><code>0</code></td>
+<td>保留位</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>TXE</code></td>
+<td>R</td>
+<td><code>1</code></td>
+<td>发送缓冲区空：<code>1</code> 空；<code>0</code> 满</td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td><code>RXNE</code></td>
+<td>R</td>
+<td><code>0</code></td>
+<td>接收缓冲区非空：<code>1</code> 非空；<code>0</code> 为空（读 <code>SPI_DR</code> 清除）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="934-spi_droffset-0x0c-data-register">9.3.4 <code>SPI_DR</code>（Offset <code>0x0C</code>）— Data Register<a class="headerlink" href="#934-spi_droffset-0x0c-data-register" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>访问</th>
+<th>复位</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>31:8</code></td>
+<td>Reserved</td>
+<td>-</td>
+<td><code>0</code></td>
+<td>保留位，必须保持为 0</td>
+</tr>
+<tr>
+<td><code>7:0</code></td>
+<td><code>DATA</code></td>
+<td>R/W</td>
+<td><code>0</code></td>
+<td>写入：发送数据；读取：接收数据</td>
+</tr>
+</tbody>
+</table>
+<h3 id="94">9.4 编程模型<a class="headerlink" href="#94" title="Permanent link">&para;</a></h3>
+<ol>
+<li>初始化：按需先写 <code>SPI_CR2</code> 选择片选通道，再写 <code>SPI_CR1</code> 置位 <code>MSTR</code>（主模式）与 <code>SPE</code>（使能），同时根据需要置位 <code>TXEIE</code> / <code>RXNEIE</code> / <code>ERRIE</code> 开启对应中断。</li>
+<li>片选切换：向 <code>SPI_CR2[1:0]</code> 写入目标片选编号即可切换到对应从设备，控制器自动管理片选时序。</li>
+<li>传输：<ul>
+<li>轮询 <code>SPI_SR.TXE == 1</code> 后写 <code>SPI_DR.DATA</code> 发起发送；</li>
+<li>轮询 <code>SPI_SR.RXNE == 1</code> 后读 <code>SPI_DR.DATA</code> 获取接收数据（读取动作会清除 RXNE）。</li>
+</ul>
+</li>
+<li>错误处理：若 <code>SPI_SR.OVERRUN == 1</code>，向 <code>SPI_SR</code> 的该位写 1 清除；若在中断模式下开启了 <code>ERRIE</code>，OVERRUN 同时会触发 PLIC IRQ 5。</li>
+<li>结束：必要时清除 <code>SPI_CR1.SPE</code>。</li>
+</ol>
+<h2 id="10-spi-flash">10. SPI Flash 互联<a class="headerlink" href="#10-spi-flash" title="Permanent link">&para;</a></h2>
+<p>G233 开发板的 SPI 总线（SSI）上挂载了两片 Winbond SPI NOR Flash，通过片选信号区分。</p>
+<h3 id="101-flash">10.1 Flash 配置<a class="headerlink" href="#101-flash" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>片选</th>
+<th>型号</th>
+<th>容量</th>
+<th>JEDEC ID</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CS0</td>
+<td>W25X16</td>
+<td>2 MB</td>
+<td><code>0xEF 0x30 0x15</code></td>
+<td>默认 Flash</td>
+</tr>
+<tr>
+<td>CS1</td>
+<td>W25X32</td>
+<td>4 MB</td>
+<td><code>0xEF 0x30 0x16</code></td>
+<td>扩展 Flash</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102-flash">10.2 支持的 Flash 命令<a class="headerlink" href="#102-flash" title="Permanent link">&para;</a></h3>
+<p>以下列出 G233 平台要求支持的 Flash 命令子集：</p>
+<table>
+<thead>
+<tr>
+<th>命令码</th>
+<th>助记符</th>
+<th>描述</th>
+<th>地址字节</th>
+<th>数据字节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x9F</code></td>
+<td>JEDEC ID</td>
+<td>读取制造商/设备 ID</td>
+<td>0</td>
+<td>3 (读)</td>
+</tr>
+<tr>
+<td><code>0x05</code></td>
+<td>RDSR</td>
+<td>读状态寄存器</td>
+<td>0</td>
+<td>1 (读)</td>
+</tr>
+<tr>
+<td><code>0x06</code></td>
+<td>WREN</td>
+<td>写使能</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>0x04</code></td>
+<td>WRDI</td>
+<td>写禁止</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>0x20</code></td>
+<td>SE</td>
+<td>扇区擦除 (4 KB)</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>0x02</code></td>
+<td>PP</td>
+<td>页编程 (最多 256 B)</td>
+<td>3</td>
+<td>1-256 (写)</td>
+</tr>
+<tr>
+<td><code>0x03</code></td>
+<td>READ</td>
+<td>读数据</td>
+<td>3</td>
+<td>N (读)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="103-flash">10.3 Flash 状态寄存器<a class="headerlink" href="#103-flash" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td><code>BUSY</code></td>
+<td><code>1</code> 表示擦除/编程操作正在进行</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><code>WEL</code></td>
+<td><code>1</code> 表示写使能已激活</td>
+</tr>
+<tr>
+<td><code>7:2</code></td>
+<td>Reserved</td>
+<td>保留</td>
+</tr>
+</tbody>
+</table>
+<h3 id="104">10.4 典型操作流程<a class="headerlink" href="#104" title="Permanent link">&para;</a></h3>
+<p><strong>读取 JEDEC ID</strong>：激活 CS → 发送 <code>0x9F</code> → 读取 3 字节 → 取消 CS。</p>
+<p><strong>扇区擦除</strong>：激活 CS → 发送 <code>0x06</code> (WREN) → 取消 CS → 激活 CS → 发送 <code>0x20</code> + 3 字节地址 → 取消 CS → 轮询 BUSY 直到完成。</p>
+<p><strong>页编程</strong>：激活 CS → 发送 <code>0x06</code> (WREN) → 取消 CS → 激活 CS → 发送 <code>0x02</code> + 3 字节地址 + 数据（最多 256 字节）→ 取消 CS → 轮询 BUSY 直到完成。</p>
+<p><strong>数据读取</strong>：激活 CS → 发送 <code>0x03</code> + 3 字节地址 → 连续读取 N 字节 → 取消 CS。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../g233-exper-manual/" class="md-footer__link md-footer__link--prev" aria-label="上一页: SoC 实验手册">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                SoC 实验手册
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../gpu/" class="md-footer__link md-footer__link--next" aria-label="下一页: 实验介绍">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                实验介绍
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Brought to you by <a href="https://github.com/gevico">Gevico Tech Open Community</a>. Available freely under the MIT license.
+    </div>
+  
+  
+    Made with
+    <a href="https://zensical.org/" target="_blank" rel="noopener">
+      Zensical
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../../../..","features":["content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.top","navigation.tracking","navigation.tabs","content.comments","search.suggest","search.highlight","search.share","header.autohide"],"search":"../../../../../assets/javascripts/workers/search.b6b7e04f.min.js","tags":null,"translations":{"clipboard.copied":"已复制","clipboard.copy":"复制","search.result.more.one":"在该页上还有 1 个符合条件的结果","search.result.more.other":"在该页上还有 # 个符合条件的结果","search.result.none":"没有找到符合条件的结果","search.result.one":"找到 1 个符合条件的结果","search.result.other":"# 个符合条件的结果","search.result.placeholder":"键入以开始搜索","search.result.term.missing":"缺少","select.version":"选择当前版本"},"version":null}</script>
+    
+    
+      <script src="../../../../../assets/javascripts/bundle.0df4f2d0.min.js"></script>
+      
+        <script src="../../../../../plugins/javascripts/toc-collapse.js"></script>
+      
+        <script src="../../../../../plugins/javascripts/ppt-slides.js"></script>
+      
+        <script src="../../../../../plugins/javascripts/mathjax-config.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
