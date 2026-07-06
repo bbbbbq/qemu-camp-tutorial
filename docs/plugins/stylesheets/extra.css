@@ -70,3 +70,83 @@ article p {
 .md-sidebar--secondary [data-md-component="toc"] li.md-nav__item[data-toc-expanded="true"] > button.md-toc__toggle::before {
   transform: rotate(90deg);
 }
+
+.signup-form {
+  margin: 1.2rem 0 1.6rem;
+}
+
+.signup-form label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.signup-form__row {
+  display: flex;
+  gap: 0.6rem;
+  align-items: stretch;
+  max-width: 36rem;
+}
+
+.signup-form input {
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.2rem;
+  color: var(--md-default-fg-color);
+  background: var(--md-default-bg-color);
+  font: inherit;
+}
+
+.signup-form input:focus {
+  border-color: var(--md-accent-fg-color);
+  outline: 2px solid color-mix(in srgb, var(--md-accent-fg-color) 24%, transparent);
+  outline-offset: 1px;
+}
+
+.signup-form .md-button {
+  flex: 0 0 auto;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.signup-form .md-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.signup-form__status {
+  max-width: 36rem;
+  margin: 0.55rem 0 0;
+  font-size: 0.8rem;
+}
+
+.signup-form__status--info {
+  color: var(--md-default-fg-color--light);
+}
+
+.md-typeset .signup-form__status--error {
+  color: #ff3b30 !important;
+}
+
+.md-typeset .signup-form__status--error a {
+  color: #ff3b30 !important;
+  text-decoration-color: currentColor;
+}
+
+.signup-form__status a {
+  color: inherit;
+  font-weight: 700;
+}
+
+@media screen and (max-width: 36rem) {
+  .signup-form__row {
+    flex-direction: column;
+  }
+
+  .signup-form .md-button {
+    width: 100%;
+    text-align: center;
+  }
+}

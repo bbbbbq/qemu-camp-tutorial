@@ -91,6 +91,7 @@ extra_javascript:
 
 nav:
   - 主页: index.md
+  - 报名: signup.md
   - 讲义:
     - QEMU 训练营 2026:
       - 训练营介绍: tutorial/2026/index.md

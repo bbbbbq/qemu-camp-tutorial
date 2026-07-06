@@ -1,0 +1,28 @@
+name: QEMU 训练营报名
+description: 提交 QEMU 训练营报名信息
+title: "[报名] "
+labels:
+  - signup
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢报名 QEMU 训练营。当前报名只需要填写 GitHub 用户名。
+        请不要在报名表中填写手机号、邮箱、身份证号等隐私信息。
+
+  - type: input
+    id: github_username
+    attributes:
+      label: GitHub 用户名
+      description: 请填写后续用于接收实验仓库权限的 GitHub 用户名。
+      placeholder: 例如：bbbbbq
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: 确认事项
+      options:
+        - label: 我确认上述 GitHub 用户名将作为后续实验仓库授权账号。
+          required: true
