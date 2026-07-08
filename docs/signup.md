@@ -142,11 +142,27 @@
     return response.json();
   };
 
-  const isIgnoredSignupIssue = (issue) => {
-    const ignoredLabels = new Set(["signup/invalid", "signup/duplicate"]);
-    const hasIgnoredLabel = (issue.labels ?? []).some((label) => ignoredLabels.has(label.name ?? label));
+  const isPullRequestIssue = (issue) => Boolean(issue.pull_request);
 
-    return Boolean(issue.pull_request) || hasIgnoredLabel;
+  const findExistingSignupInBoard = (username) => {
+    const normalizedUsername = username.toLowerCase();
+    const rows = document.querySelectorAll(".signup-board__table tbody tr");
+
+    for (const row of rows) {
+      const usernameLink = row.cells?.[1]?.querySelector("a[href^='https://github.com/']");
+      const boardUsername = usernameLink?.textContent?.trim().toLowerCase();
+
+      if (boardUsername !== normalizedUsername) {
+        continue;
+      }
+
+      const issueLink = row.querySelector("a[href*='/issues/']");
+      return {
+        html_url: issueLink?.href || usernameLink.href,
+      };
+    }
+
+    return null;
   };
 
   const findExistingSignup = async (username) => {
@@ -167,7 +183,7 @@
 
       const issues = await response.json();
       const existingIssue = issues.find((issue) => (
-        !isIgnoredSignupIssue(issue) && issueMentionsUsername(issue, username)
+        !isPullRequestIssue(issue) && issueMentionsUsername(issue, username)
       ));
 
       if (existingIssue) {
@@ -211,6 +227,13 @@
     const signupUrl = `https://github.com/gevico/qemu-camp-tutorial/issues/new?${params.toString()}`;
 
     try {
+      const existingBoardSignup = findExistingSignupInBoard(username);
+
+      if (existingBoardSignup) {
+        setStatus(`GitHub 用户名 ${username} 已经提交过报名，请不要重复提交。`, "error", existingBoardSignup.html_url);
+        return;
+      }
+
       const existingIssue = await findExistingSignup(username);
 
       if (existingIssue) {

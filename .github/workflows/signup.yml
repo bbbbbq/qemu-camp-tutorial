@@ -38,46 +38,20 @@ jobs:
             const defaultBranch = context.payload.repository?.default_branch ?? "main";
             const signupConfigPath = "docs/data/signup-config.json";
             const signupPagePath = "docs/signup.md";
-            const defaultClosedMessage = "QEMU 训练营报名暂未开放，请关注后续通知。";
 
             const signupLabel = {
               name: "signup",
               color: "5319e7",
               description: "QEMU camp signup issue.",
             };
-            const statusLabels = {
-              processing: {
-                name: "signup/processing",
-                color: "1d76db",
-                description: "Signup automation is processing this issue.",
-              },
-              success: {
-                name: "signup/success",
-                color: "0e8a16",
-                description: "Signup validation completed successfully.",
-              },
-              invalid: {
-                name: "signup/invalid",
-                color: "d73a4a",
-                description: "Signup issue failed validation.",
-              },
-              duplicate: {
-                name: "signup/duplicate",
-                color: "fbca04",
-                description: "Signup issue duplicates an existing signup.",
-              },
-              failed: {
-                name: "signup/failed",
-                color: "b60205",
-                description: "Signup automation failed unexpectedly.",
-              },
-              closed: {
-                name: "signup/closed",
-                color: "6a737d",
-                description: "Signup issue was submitted while signup is closed.",
-              },
-            };
-            const allStatusLabels = Object.values(statusLabels).map((label) => label.name);
+            const oldStatusLabelNames = [
+              "signup/processing",
+              "signup/success",
+              "signup/invalid",
+              "signup/duplicate",
+              "signup/failed",
+              "signup/closed",
+            ];
 
             const signupTitlePrefix = String.fromCharCode(91, 25253, 21517, 93);
             const usernamePattern = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/;
@@ -117,8 +91,8 @@ jobs:
               }
             }
 
-            async function removeStatusLabels() {
-              for (const label of allStatusLabels) {
+            async function removeOldStatusLabels() {
+              for (const label of oldStatusLabelNames) {
                 try {
                   await github.rest.issues.removeLabel({
                     owner,
@@ -132,42 +106,6 @@ jobs:
                   }
                 }
               }
-            }
-
-            async function setStatus(label) {
-              await removeStatusLabels();
-              await github.rest.issues.addLabels({
-                owner,
-                repo,
-                issue_number: issueNumber,
-                labels: [label],
-              });
-            }
-
-            async function commentOnce(marker, body) {
-              const comments = await github.paginate(github.rest.issues.listComments, {
-                owner,
-                repo,
-                issue_number: issueNumber,
-                per_page: 100,
-              });
-              const existing = comments.find((comment) => comment.body?.includes(marker));
-              if (existing) {
-                await github.rest.issues.updateComment({
-                  owner,
-                  repo,
-                  comment_id: existing.id,
-                  body,
-                });
-                return;
-              }
-
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number: issueNumber,
-                body,
-              });
             }
 
             async function readTextFile(path) {
@@ -213,12 +151,6 @@ jobs:
                 }
                 throw error;
               }
-            }
-
-            function signupClosedMessage(config) {
-              return typeof config.closed_message === "string" && config.closed_message.trim()
-                ? config.closed_message.trim()
-                : defaultClosedMessage;
             }
 
             async function writeTextFile(path, sha, content, message) {
@@ -311,16 +243,7 @@ jobs:
             async function updateSignupBoard({ username, issueUrl, issueNumber }) {
               const { sha, content } = await readTextFile(signupPagePath);
               const records = parseSignupBoardRecords(content);
-              const existingRecord = records.find((record) => record.github_username.toLowerCase() === username.toLowerCase());
               const now = new Date().toISOString();
-
-              if (existingRecord) {
-                if (existingRecord.issue_number === issueNumber) {
-                  return { path: signupPagePath, updated: false };
-                }
-
-                throw new Error(`GitHub user ${username} already exists in signup board.`);
-              }
 
               records.push({
                 github_username: username,
@@ -360,32 +283,6 @@ jobs:
                   issue_number: issueNumber,
                 },
               });
-            }
-
-            function formatRepositoryList(repositories) {
-              if (!repositories.length) {
-                return [
-                  "- 暂无。实验仓库创建、fork 和授权步骤接入后会更新报名记录和本评论。",
-                ];
-              }
-
-              return repositories.map((repository) => {
-                const permissionText = repository.permission ? `，权限：${repository.permission}` : "";
-                return `- [${repository.name}](${repository.url})${permissionText}`;
-              });
-            }
-
-            function formatInviteNotice(repositories) {
-              if (!repositories.length) {
-                return "当前没有需要接受的仓库邀请。后续私有实验仓库创建后，请在 GitHub 通知中接受邀请。";
-              }
-
-              const hasInvitation = repositories.some((repository) => repository.invitation_required);
-              if (hasInvitation) {
-                return "如果 GitHub 发送了仓库邀请，请先在 GitHub 通知中接受邀请，然后再访问实验仓库。";
-              }
-
-              return "仓库权限已经配置完成，可以直接访问上方实验仓库链接。";
             }
 
             function cleanFieldValue(rawValue) {
@@ -447,12 +344,11 @@ jobs:
               return issues.find((candidateIssue) => (
                 candidateIssue.number !== issueNumber
                 && !candidateIssue.pull_request
-                && !candidateIssue.labels.some((label) => ["signup/invalid", "signup/duplicate"].includes(label.name))
                 && issueMentionsUsername(candidateIssue, username)
               ));
             }
 
-            await Promise.all([signupLabel, ...Object.values(statusLabels)].map(ensureLabel));
+            await ensureLabel(signupLabel);
             if (!hasSignupLabel) {
               await github.rest.issues.addLabels({
                 owner,
@@ -461,27 +357,15 @@ jobs:
                 labels: [signupLabel.name],
               });
             }
+            await removeOldStatusLabels();
 
             const signupConfig = await readJsonFile(signupConfigPath);
             if (signupConfig.enabled === false) {
-              const closedMessage = signupClosedMessage(signupConfig);
-              await setStatus(statusLabels.closed.name);
-              await commentOnce(
-                "<!-- signup-closed -->",
-                [
-                  "<!-- signup-closed -->",
-                  closedMessage,
-                  "",
-                  "报名功能当前由管理员关闭，本 Issue 暂不会进入报名处理流程。",
-                ].join("\n")
-              );
+              core.info(`Skip issue #${issueNumber}: signup is closed.`);
               return;
             }
 
-            await setStatus(statusLabels.processing.name);
-
             let username = "";
-            const createdRepositories = [];
 
             try {
               username = normalizeUsername(
@@ -490,18 +374,7 @@ jobs:
               const issueAuthor = issue.user.login;
 
               if (!usernamePattern.test(username)) {
-                await setStatus(statusLabels.invalid.name);
-                await commentOnce(
-                  "<!-- signup-invalid-username -->",
-                  [
-                    "<!-- signup-invalid-username -->",
-                    "报名校验失败：GitHub 用户名格式不正确。",
-                    "",
-                    `当前解析到的用户名：\`${username || "(空)"}\``,
-                    "",
-                    "请修改 Issue 中的 GitHub 用户名后重新提交。",
-                  ].join("\n")
-                );
+                core.info(`Skip issue #${issueNumber}: invalid GitHub username "${username}".`);
                 return;
               }
 
@@ -514,50 +387,18 @@ jobs:
                   throw error;
                 }
 
-                await setStatus(statusLabels.invalid.name);
-                await commentOnce(
-                  "<!-- signup-invalid-user-not-found -->",
-                  [
-                    "<!-- signup-invalid-user-not-found -->",
-                    "报名校验失败：没有找到这个 GitHub 用户。",
-                    "",
-                    `请确认用户名 \`${username}\` 是否拼写正确。`,
-                  ].join("\n")
-                );
+                core.info(`Skip issue #${issueNumber}: GitHub user "${username}" was not found.`);
                 return;
               }
 
               if (username.toLowerCase() !== issueAuthor.toLowerCase()) {
-                await setStatus(statusLabels.invalid.name);
-                await commentOnce(
-                  "<!-- signup-invalid-author-mismatch -->",
-                  [
-                    "<!-- signup-invalid-author-mismatch -->",
-                    "报名校验失败：Issue 创建者和填写的 GitHub 用户名不一致。",
-                    "",
-                    `Issue 创建者：\`${issueAuthor}\``,
-                    `填写的用户名：\`${username}\``,
-                    "",
-                    "请使用需要参加训练营的 GitHub 账号创建报名 Issue。",
-                  ].join("\n")
-                );
+                core.info(`Skip issue #${issueNumber}: issue author "${issueAuthor}" does not match "${username}".`);
                 return;
               }
 
               const duplicateIssue = await findDuplicateSignup(username);
               if (duplicateIssue) {
-                await setStatus(statusLabels.duplicate.name);
-                await commentOnce(
-                  "<!-- signup-duplicate -->",
-                  [
-                    "<!-- signup-duplicate -->",
-                    "检测到重复报名。",
-                    "",
-                    `GitHub 用户 \`${username}\` 已经提交过报名：#${duplicateIssue.number}`,
-                    "",
-                    "请不要重复提交报名 Issue。",
-                  ].join("\n")
-                );
+                core.info(`Skip issue #${issueNumber}: duplicate signup for "${username}" in #${duplicateIssue.number}.`);
                 return;
               }
 
@@ -573,33 +414,7 @@ jobs:
                   issueNumber: issue.number,
                 });
               }
-
-              await setStatus(statusLabels.success.name);
-              await commentOnce(
-                "<!-- signup-success -->",
-                [
-                  "<!-- signup-success -->",
-                  "报名成功。",
-                  "",
-                  `GitHub 用户：\`${username}\``,
-                  `报名看板：\`${boardUpdate.path}\``,
-                  "",
-                  "已创建或配置的实验仓库：",
-                  ...formatRepositoryList(createdRepositories),
-                  "",
-                  formatInviteNotice(createdRepositories),
-                ].join("\n")
-              );
+              core.info(`Signup succeeded for "${username}". Board: ${boardUpdate.path}.`);
             } catch (error) {
-              await setStatus(statusLabels.failed.name);
-              await commentOnce(
-                "<!-- signup-failed -->",
-                [
-                  "<!-- signup-failed -->",
-                  "报名自动化处理失败，需要维护者检查 GitHub Actions 日志。",
-                  "",
-                  `错误信息：\`${error.message}\``,
-                ].join("\n")
-              );
               throw error;
             }
