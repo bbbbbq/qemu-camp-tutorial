@@ -18,15 +18,13 @@ permissions:
   issues: write
 
 concurrency:
-  group: signup-${{ github.event.issue.number || inputs.issue_number }}
+  group: signup-board
   cancel-in-progress: false
 
 jobs:
   validate:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.event.issue.title, '[报名]')
     runs-on: ubuntu-latest
-    env:
-      SIGNUP_YEAR: "2026"
     steps:
       - name: Validate signup issue
         uses: actions/github-script@v7
@@ -38,8 +36,8 @@ jobs:
               ? Number(core.getInput("issue_number"))
               : context.payload.issue.number;
             const defaultBranch = context.payload.repository?.default_branch ?? "main";
-            let signupYear = process.env.SIGNUP_YEAR;
             const signupConfigPath = "docs/data/signup-config.json";
+            const signupPagePath = "docs/signup.md";
             const defaultClosedMessage = "QEMU 训练营报名暂未开放，请关注后续通知。";
 
             const signupLabel = {
@@ -172,21 +170,22 @@ jobs:
               });
             }
 
-            async function getFileSha(path) {
-              try {
-                const { data } = await github.rest.repos.getContent({
-                  owner,
-                  repo,
-                  path,
-                  ref: defaultBranch,
-                });
-                return Array.isArray(data) ? undefined : data.sha;
-              } catch (error) {
-                if (error.status === 404) {
-                  return undefined;
-                }
-                throw error;
+            async function readTextFile(path) {
+              const { data } = await github.rest.repos.getContent({
+                owner,
+                repo,
+                path,
+                ref: defaultBranch,
+              });
+
+              if (Array.isArray(data)) {
+                throw new Error(`${path} is a directory.`);
               }
+
+              return {
+                sha: data.sha,
+                content: Buffer.from(data.content, data.encoding ?? "base64").toString("utf8"),
+              };
             }
 
             async function readJsonFile(path) {
@@ -222,23 +221,145 @@ jobs:
                 : defaultClosedMessage;
             }
 
-            async function writeJsonFile(path, data, message) {
-              const sha = await getFileSha(path);
-              const content = Buffer.from(`${JSON.stringify(data, null, 2)}\n`, "utf8").toString("base64");
-
+            async function writeTextFile(path, sha, content, message) {
               await github.rest.repos.createOrUpdateFileContents({
                 owner,
                 repo,
                 path,
                 message,
-                content,
                 sha,
                 branch: defaultBranch,
+                content: Buffer.from(content, "utf8").toString("base64"),
               });
             }
 
-            function signupRecordPath(username) {
-              return `data/signups/${signupYear}/${username.toLowerCase()}.json`;
+            function escapeHtml(value) {
+              return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+            }
+
+            function signupBoardMarkers() {
+              return {
+                start: "<!-- signup-board:start -->",
+                end: "<!-- signup-board:end -->",
+              };
+            }
+
+            function parseSignupBoardRecords(markdown) {
+              const { start, end } = signupBoardMarkers();
+              const startIndex = markdown.indexOf(start);
+              const endIndex = markdown.indexOf(end);
+
+              if (startIndex === -1 || endIndex === -1 || endIndex <= startIndex) {
+                throw new Error(`Signup board markers not found in ${signupPagePath}.`);
+              }
+
+              const boardHtml = markdown.slice(startIndex + start.length, endIndex);
+              const records = [];
+              const rowPattern = /<tr>[\s\S]*?<\/tr>/g;
+
+              for (const rowMatch of boardHtml.matchAll(rowPattern)) {
+                const row = rowMatch[0];
+                const usernameMatch = row.match(/https:\/\/github\.com\/([A-Za-z0-9-]{1,39})/);
+                if (!usernameMatch) {
+                  continue;
+                }
+
+                const issueMatch = row.match(/href="([^"]*\/issues\/(\d+))"/);
+                const cells = [...row.matchAll(/<td(?:\s[^>]*)?>([\s\S]*?)<\/td>/g)]
+                  .map((match) => match[1].replace(/<[^>]*>/g, "").trim());
+
+                records.push({
+                  github_username: usernameMatch[1],
+                  registered_at: cells[2] || "-",
+                  issue_url: issueMatch?.[1] || "",
+                  issue_number: issueMatch?.[2] ? Number(issueMatch[2]) : undefined,
+                });
+              }
+
+              return records;
+            }
+
+            function renderSignupBoardRows(records) {
+              if (!records.length) {
+                return "        <tr>\n          <td colspan=\"4\">暂无报名记录。</td>\n        </tr>";
+              }
+
+              return records.map((record, index) => {
+                const username = escapeHtml(record.github_username);
+                const registeredAt = escapeHtml(record.registered_at || "-");
+                const issueUrl = record.issue_url || "";
+                const issueText = record.issue_number ? `#${record.issue_number}` : "查看";
+                const issueCell = issueUrl
+                  ? `<a href=\"${escapeHtml(issueUrl)}\" rel=\"noopener\">${escapeHtml(issueText)}</a>`
+                  : "-";
+
+                return [
+                  "        <tr>",
+                  `          <td>${index + 1}</td>`,
+                  `          <td><a href=\"https://github.com/${username}\" rel=\"noopener\">${username}</a></td>`,
+                  `          <td>${registeredAt}</td>`,
+                  `          <td>${issueCell}</td>`,
+                  "        </tr>",
+                ].join("\n");
+              }).join("\n");
+            }
+
+            async function updateSignupBoard({ username, issueUrl, issueNumber }) {
+              const { sha, content } = await readTextFile(signupPagePath);
+              const records = parseSignupBoardRecords(content);
+              const existingRecord = records.find((record) => record.github_username.toLowerCase() === username.toLowerCase());
+              const now = new Date().toISOString();
+
+              if (existingRecord) {
+                if (existingRecord.issue_number === issueNumber) {
+                  return { path: signupPagePath, updated: false };
+                }
+
+                throw new Error(`GitHub user ${username} already exists in signup board.`);
+              }
+
+              records.push({
+                github_username: username,
+                registered_at: now,
+                issue_url: issueUrl,
+                issue_number: issueNumber,
+              });
+              records.sort((left, right) => left.github_username.localeCompare(right.github_username, "en", { sensitivity: "base" }));
+
+              const { start, end } = signupBoardMarkers();
+              const startIndex = content.indexOf(start);
+              const endIndex = content.indexOf(end);
+              const nextBoard = `${start}\n${renderSignupBoardRows(records)}\n        ${end}`;
+              let nextContent = `${content.slice(0, startIndex)}${nextBoard}${content.slice(endIndex + end.length)}`;
+              nextContent = nextContent.replace(
+                /<strong id="signup-board-count" class="signup-board__count">\d+<\/strong>/,
+                `<strong id="signup-board-count" class="signup-board__count">${records.length}</strong>`
+              );
+
+              await writeTextFile(
+                signupPagePath,
+                sha,
+                nextContent,
+                `docs/signup: add ${username} to signup board`
+              );
+
+              return { path: signupPagePath, updated: true };
+            }
+
+            async function dispatchSignupBoardUpdated({ username, issueNumber }) {
+              await github.rest.repos.createDispatchEvent({
+                owner,
+                repo,
+                event_type: "signup-board-updated",
+                client_payload: {
+                  username,
+                  issue_number: issueNumber,
+                },
+              });
             }
 
             function formatRepositoryList(repositories) {
@@ -265,32 +386,6 @@ jobs:
               }
 
               return "仓库权限已经配置完成，可以直接访问上方实验仓库链接。";
-            }
-
-            async function writeSignupRecord({ username, status, repositories, errorMessage }) {
-              const path = signupRecordPath(username);
-              const now = new Date().toISOString();
-              const record = {
-                github_username: username,
-                issue_number: issue.number,
-                issue_url: issue.html_url,
-                registered_at: issue.created_at,
-                updated_at: now,
-                repositories,
-                status,
-              };
-
-              if (errorMessage) {
-                record.error = errorMessage;
-              }
-
-              await writeJsonFile(
-                path,
-                record,
-                `docs/signup: update signup record for ${username}`
-              );
-
-              return path;
             }
 
             function cleanFieldValue(rawValue) {
@@ -368,7 +463,6 @@ jobs:
             }
 
             const signupConfig = await readJsonFile(signupConfigPath);
-            signupYear = String(signupConfig.year || signupYear);
             if (signupConfig.enabled === false) {
               const closedMessage = signupClosedMessage(signupConfig);
               await setStatus(statusLabels.closed.name);
@@ -467,11 +561,18 @@ jobs:
                 return;
               }
 
-              const recordPath = await writeSignupRecord({
+              const boardUpdate = await updateSignupBoard({
                 username,
-                status: "success",
-                repositories: createdRepositories,
+                issueUrl: issue.html_url,
+                issueNumber: issue.number,
               });
+
+              if (boardUpdate.updated) {
+                await dispatchSignupBoardUpdated({
+                  username,
+                  issueNumber: issue.number,
+                });
+              }
 
               await setStatus(statusLabels.success.name);
               await commentOnce(
@@ -481,7 +582,7 @@ jobs:
                   "报名成功。",
                   "",
                   `GitHub 用户：\`${username}\``,
-                  `报名记录：\`${recordPath}\``,
+                  `报名看板：\`${boardUpdate.path}\``,
                   "",
                   "已创建或配置的实验仓库：",
                   ...formatRepositoryList(createdRepositories),
@@ -490,19 +591,6 @@ jobs:
                 ].join("\n")
               );
             } catch (error) {
-              if (usernamePattern.test(username)) {
-                try {
-                  await writeSignupRecord({
-                    username,
-                    status: "failed",
-                    repositories: createdRepositories,
-                    errorMessage: error.message,
-                  });
-                } catch (recordError) {
-                  core.warning(`Failed to write signup failure record: ${recordError.message}`);
-                }
-              }
-
               await setStatus(statusLabels.failed.name);
               await commentOnce(
                 "<!-- signup-failed -->",

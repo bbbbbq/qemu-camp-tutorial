@@ -1,6 +1,9 @@
 name: Documentation
 on:
   workflow_dispatch:
+  repository_dispatch:
+    types:
+      - signup-board-updated
   push:
     branches:
       - master
@@ -13,7 +16,7 @@ permissions:
   contents: read
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -42,6 +42,37 @@
     - 填写的 GitHub 用户名就是后续完成实验和提交作业的账号。
     - 如果需要更换 GitHub 账号，请重新使用正确账号提交报名。
 
+## 已报名学员
+
+<section class="signup-board" aria-labelledby="signup-board-title">
+  <div class="signup-board__summary">
+    <div>
+      <h3 id="signup-board-title">报名看板</h3>
+      <p class="signup-board__status">报名成功后自动更新。</p>
+    </div>
+    <strong id="signup-board-count" class="signup-board__count">0</strong>
+  </div>
+  <div class="signup-board__table-wrap">
+    <table class="signup-board__table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>GitHub ID</th>
+          <th>报名时间</th>
+          <th>Issue</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- signup-board:start -->
+        <tr>
+          <td colspan="4">暂无报名记录。</td>
+        </tr>
+        <!-- signup-board:end -->
+      </tbody>
+    </table>
+  </div>
+</section>
+
 <script>
 (() => {
   const form = document.getElementById("signup-form");
