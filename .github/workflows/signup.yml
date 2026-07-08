@@ -38,7 +38,9 @@ jobs:
               ? Number(core.getInput("issue_number"))
               : context.payload.issue.number;
             const defaultBranch = context.payload.repository?.default_branch ?? "main";
-            const signupYear = process.env.SIGNUP_YEAR;
+            let signupYear = process.env.SIGNUP_YEAR;
+            const signupConfigPath = "docs/data/signup-config.json";
+            const defaultClosedMessage = "QEMU 训练营报名暂未开放，请关注后续通知。";
 
             const signupLabel = {
               name: "signup",
@@ -70,6 +72,11 @@ jobs:
                 name: "signup/failed",
                 color: "b60205",
                 description: "Signup automation failed unexpectedly.",
+              },
+              closed: {
+                name: "signup/closed",
+                color: "6a737d",
+                description: "Signup issue was submitted while signup is closed.",
               },
             };
             const allStatusLabels = Object.values(statusLabels).map((label) => label.name);
@@ -180,6 +187,39 @@ jobs:
                 }
                 throw error;
               }
+            }
+
+            async function readJsonFile(path) {
+              try {
+                const { data } = await github.rest.repos.getContent({
+                  owner,
+                  repo,
+                  path,
+                  ref: defaultBranch,
+                });
+
+                if (Array.isArray(data)) {
+                  return {};
+                }
+
+                try {
+                  return JSON.parse(Buffer.from(data.content, data.encoding ?? "base64").toString("utf8"));
+                } catch (error) {
+                  core.warning(`Failed to parse ${path}: ${error.message}`);
+                  return {};
+                }
+              } catch (error) {
+                if (error.status === 404) {
+                  return {};
+                }
+                throw error;
+              }
+            }
+
+            function signupClosedMessage(config) {
+              return typeof config.closed_message === "string" && config.closed_message.trim()
+                ? config.closed_message.trim()
+                : defaultClosedMessage;
             }
 
             async function writeJsonFile(path, data, message) {
@@ -326,6 +366,24 @@ jobs:
                 labels: [signupLabel.name],
               });
             }
+
+            const signupConfig = await readJsonFile(signupConfigPath);
+            signupYear = String(signupConfig.year || signupYear);
+            if (signupConfig.enabled === false) {
+              const closedMessage = signupClosedMessage(signupConfig);
+              await setStatus(statusLabels.closed.name);
+              await commentOnce(
+                "<!-- signup-closed -->",
+                [
+                  "<!-- signup-closed -->",
+                  closedMessage,
+                  "",
+                  "报名功能当前由管理员关闭，本 Issue 暂不会进入报名处理流程。",
+                ].join("\n")
+              );
+              return;
+            }
+
             await setStatus(statusLabels.processing.name);
 
             let username = "";

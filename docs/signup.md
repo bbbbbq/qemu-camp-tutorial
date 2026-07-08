@@ -48,10 +48,14 @@
   const input = document.getElementById("github-username");
   const status = document.getElementById("signup-status");
   const submitButton = form?.querySelector("button[type='submit']");
+  let signupEnabled = false;
 
   if (!form || !input) {
     return;
   }
+
+  input.disabled = true;
+  submitButton?.setAttribute("disabled", "disabled");
 
   const setStatus = (message, kind = "info", link) => {
     if (!status) {
@@ -79,6 +83,32 @@
     const usernamePattern = new RegExp(`(^|[^a-z0-9-])${normalizedUsername.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9-]|$)`);
 
     return usernamePattern.test(title) || usernamePattern.test(body);
+  };
+
+  const setSignupEnabled = (enabled, message) => {
+    signupEnabled = enabled;
+
+    input.disabled = !enabled;
+    submitButton?.toggleAttribute("disabled", !enabled);
+
+    if (!enabled) {
+      setStatus(message || "QEMU 训练营报名暂未开放，请关注后续通知。");
+    }
+  };
+
+  const loadSignupConfig = async () => {
+    const response = await fetch("../data/signup-config.json", {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Signup config returned ${response.status}`);
+    }
+
+    return response.json();
   };
 
   const isIgnoredSignupIssue = (issue) => {
@@ -124,6 +154,11 @@
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    if (!signupEnabled) {
+      setStatus("正在读取报名状态，请稍后再试。", "error");
+      return;
+    }
+
     const username = input.value.trim().replace(/^@+/, "");
     const validUsername = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/.test(username);
 
@@ -159,8 +194,17 @@
       setStatus("暂时无法检查重复报名，正在跳转到 GitHub...");
       window.location.href = signupUrl;
     } finally {
-      submitButton?.removeAttribute("disabled");
+      submitButton?.toggleAttribute("disabled", !signupEnabled);
     }
   });
+
+  loadSignupConfig()
+    .then((config) => {
+      setSignupEnabled(config.enabled !== false, config.closed_message);
+    })
+    .catch((error) => {
+      console.error(error);
+      setStatus("暂时无法读取报名状态，请刷新页面后重试。", "error");
+    });
 })();
 </script>
